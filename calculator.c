@@ -45,46 +45,59 @@ LINK infix_to_postfix(LINK infix){
     struct NODE *postfix_head = malloc(sizeof(struct NODE));
     postfix_head->next=NULL;
 
+    struct NODE *num_append_head = malloc(sizeof(struct NODE));
+    num_append_head->next=NULL;
+
     int signal=0;
     while (infix->d != "\0"){
         if (infix->d == "("){
-            addNext(temp_head, removeNext(infix));
+            addNext(temp_head, removeNext(infix) - 48); //removeNext리턴값은 char, addNext의 두 번쨰 인자는 int
             signal=0;
         }
         else if (infix->d == ")"){
             while (temp_head->data != "("){
-                addNext(postfix_head, removeNext(temp_head));
+                addNext(postfix_head, removeNext(temp_head) - 48);
             }
             signal=0;
         }
         else if((infix->d == "*") || (infix->d == "/")){
             if (signal<2){
-                addNext(temp_head, removeNext(infix));
+                addNext(temp_head, removeNext(infix) - 48);
             }
             else{
-                addNext(postfix_head, removeNext(temp_head));
-                addNext(temp_head, removeNext(infix));
+                addNext(postfix_head, removeNext(temp_head) - 48);
+                addNext(temp_head, removeNext(infix) - 48);
             }
             signal=2;
         }
         else if((infix->d == "+") || (infix->d == "-")){
             if (signal<1){
-                addNext(temp_head, removeNext(infix));
+                addNext(temp_head, removeNext(infix)- 48);
             }
             else{
-                addNext(postfix_head, removeNext(temp_head));
-                addNext(temp_head, removeNext(infix));
+                addNext(postfix_head, removeNext(temp_head)- 48);
+                addNext(temp_head, removeNext(infix)- 48);
             }
             signal=1;
         }
         else{
-            addNext(postfix_head, removeNext(infix));
+            while ((infix->d == "0") || (infix->d == "1") || (infix->d == "2") || (infix->d == "3") || (infix->d == "4") || (infix->d == "5") || (infix->d == "6") || (infix->d == "7") || (infix->d == "8") || (infix->d == "9")){
+                addNext(num_append_head, removeNext(infix)- 48);
+            }
+            int number=0;
+            int product=1;
+            while (num_append_head->next != NULL){
+                int num_fragment=removeNext(num_append_head)-48; //char->int 변환
+                number=number+ num_fragment*product;
+                product*=10;   
+            }
+            //숫자를 number로 묶어서 한 덩어리로 만들기는 했다. 그런데 이거를 postfix 스택에 추가할 수 있나? postfix스택은 한 노드가 int타입데이터만 저장 가능. 아 가능하구나.
+            addNext(postfix_head, number);
         }
     }
     return postfix_head;
 }
 
-//여기서 문제? 후위표기식으로 바꾸는 것까지는 했음. 두자리 수 vs 한 자리 수 연속 2개. 이거 구분할 수 있나?
 
 //덧셈
 
@@ -124,5 +137,3 @@ int main(void){
 //계산 결과를 소수로 보정해주는 함수
 
 //식은 문자열로 오는데, 그 안에 잘못 입력된 애도 있고, 공백 문자도 있고, 연산자, 피연산자가 있다. 예외처리할지, 제거할 건 제거할지 결정하고 프로그래밍하자.
-
-//ascii_to_num / num_to_ascii 함수를 구현한 후에 사용해보자.
