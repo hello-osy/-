@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "calculator.h"
 
 typedef char DATA;
 
