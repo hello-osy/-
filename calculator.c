@@ -134,29 +134,6 @@ int divide_postfix(int a, int b){
     return 0;
 }
 
-int main(void){
-    FILE *ifp, *ofp;
-
-    ifp = fopen("input_file","r"); //입력 파일 받음. 파일이름은 나중에 수정.
-    ofp = fopen("output_file","w"); //입력 파일 받음. 파일이름은 나중에 수정.
-    
-    //들어온 식을 스택에 저장.
-    LINK infix_notation;
-    infix_notation=string_to_list(ifp);
-
-    //중위 표기법-> 후위 표기법
-    LINK postfix_notation;
-    postfix_notation=infix_to_postfix(infix_notation);
-
-    //스택 사용해서 계산
-
-    //소수점 보정
-
-    //계산 결과 프린트
-
-    //다시 입력 받기
-    //...
-}
 
 
 //소수를 정수로 바꿔주는 함수
