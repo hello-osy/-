@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include "calculator.h"
 #include "list.h"
 //LINK 관한 설명은 list.h참고
 //LINK는 그냥 연결리스트임.
