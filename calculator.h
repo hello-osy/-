@@ -5,3 +5,5 @@ typedef char DATA;
 
 typedef struct linked_list ELEMENT;
 typedef ELEMENT              *LINK;
+
+char* readfile(FILE* ifp)
