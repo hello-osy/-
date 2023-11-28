@@ -1,6 +1,6 @@
 #include "add.h"
 
-addition Add(addition firstNum, addition secondNum) //각 숫자는 pDigit이라는 구조체로 표현됨. (숫자의 소수점 이전 부분과 이후 부분을 각각 연결 리스트로 저장함.)
+addition Add(addition firstNum, addition secondNum) //각 숫자는 addition이라는 구조체로 표현됨. (숫자의 소수점 이전 부분과 이후 부분을 각각 연결 리스트로 저장함.)
 {
     pNum before = NULL;
     pNum after = NULL;
