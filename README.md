@@ -13,6 +13,7 @@
 
 ### 바뀐 코드에 대한 설명
 - 12/02(calculator.c 변경사항) : removeNext 함수 수정. addition.c 파일의 Add함수를 사용할 수 있도록 수정함. Add에 2개의 연결리스트를 인자로 줬음.
+- 12/02(calculator.c 변경사항) : addition.c 코드가 잘 이해되지 않아서 일단 같은 역할을 하는 코드를 calculator.c에 추가함.
 
 ### 앞으로 해결해야 할 문제
-- 12/02 : addition.c파일에서 덧셈을 처리해야 함. calculator.c파일에 아직 해결해야할 작은 문제들이 있음.(코드 내 주석 참고)
+- 12/02 : addition.c파일에서 덧셈을 처리해야 함. calculator.c파일에 아직 해결해야할 문제들이 있음.(코드 내 주석 참고)
