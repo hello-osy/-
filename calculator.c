@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "calculator.h"
 #include "list.h"
 #include "add.h"
@@ -118,7 +119,34 @@ int calculate_postfix(LINK postfix){
             }
         }
         else if((postfix->d == "+")){
-            Add(temp1_head,temp2_head);
+            //Add(temp1_head,temp2_head);
+            Addition(temp1_head, temp2_head); //이건 내가 작성한 코드
+        }
+    }
+}
+
+//이 부분은 addition.c대신에 작성한 부분임.
+LINK Addition(LINK NUM1, LINK NUM2){
+    //문제가 있음. 가장 작은 자리부터 더해야하는데 가장 큰 자리부터 더하는 코드임.
+    int over_ten_num=0;
+    struct NODE *result_head = malloc(sizeof(struct NODE));
+    result_head->next=NULL;
+    while(true){
+        if (NUM1 ->d == " "){
+            removeNext(NUM1);
+        }
+        else if((NUM1 ->d == "0") || (NUM1 ->d == "1") || (NUM1 ->d == "2") || (NUM1 ->d == "3") || (NUM1 ->d == "4") || (NUM1 ->d == "5") || (NUM1 ->d == "6") || (NUM1 ->d == "7") || (NUM1 ->d == "8") || (NUM1 ->d == "9")){
+            if (NUM2 ->d == " "){
+                removeNext(NUM1);
+            }
+            else if((NUM2 ->d == "0") || (NUM2 ->d == "1") || (NUM2 ->d == "2") || (NUM2 ->d == "3") || (NUM2 ->d == "4") || (NUM2 ->d == "5") || (NUM2 ->d == "6") || (NUM2 ->d == "7") || (NUM2 ->d == "8") || (NUM2 ->d == "9")){
+                int temp_result=((NUM1->d)-'0') + ((NUM2->d)-'0') + over_ten_num;
+                over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
+                int result = temp_result%10;
+                removeNext(NUM1);
+                removeNext(NUM2);
+                addNext(result_head, result);
+            }
         }
     }
 }
