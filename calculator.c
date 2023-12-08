@@ -35,7 +35,7 @@ char removeNext(struct NODE *target){ //target노드를 지워줌.
 
 LINK string_to_list(char s[]);
 LINK infix_to_postfix(LINK infix);
-int calculate_postfix(LINK postfix);
+LINK calculate_postfix(LINK postfix);
 LINK Addition(LINK NUM1, LINK NUM2);
 
 int main(void){
@@ -64,24 +64,30 @@ int main(void){
         printf("메모리 할당에 실패했습니다.");
         return 1;
     }
-
     // 파일 내용을 버퍼에 복사
     result = fread(buffer, 1, fileSize, file);
-    
+
     if (result != fileSize) {
         printf("파일 읽기 오류");
         return 1;
     }
-
     // 파일 닫기
     fclose(file);
-
     // 읽어온 문자열 출력 또는 사용
     printf("파일 내용: %s\n", buffer);
-
     // 메모리 해제
     free(buffer);
 
+    //위에 있는 코드는 화면에 식을 보여주는 코드임. 수정이 필요함.
+    //우리는 math_expression에 있는 식을 바로 연결 리스트로 변환해야 함.
+
+    LINK infix=string_to_list(char s[]);//그래서 이 식은 필요가 없을 수도 있음. 다르게 구현해야 함.
+    
+    LINK postfix=infix_to_postfix(infix);
+    LINK result =calculate_postfix(postfix); //calculate_postfix에서 계산 결과를 스택에 저장해야 함.
+    
+    //여기서 LINK result의 각 노드의 data를 하나하나씩 가져와서 텍스트로 보여줘야 함.
+}
 //일단 식을 제대로 문자열로 가져오는 것은 확인함.
 //가져온 식을 문자열로 변환
 //문자열을 연결리스트에 넣고 이것저것 함.
@@ -89,16 +95,13 @@ int main(void){
 
 //사실 덧셈이 해결되면 곱셈, 뺄셈도 같이 구현된 것이나 마찬가지임.
 
-    return 0;
-}
-
 LINK string_to_list(char s[]){
     LINK head;
 
     if (s[0]=='\0'){
         return NULL;
     }
-    else{
+    else{ 
         head=malloc(sizeof(ELEMENT));
         head -> d = s[0];
         head -> next = string_to_list(s+1);
@@ -160,7 +163,7 @@ LINK infix_to_postfix(LINK infix){
 //후위표기식에서 숫자들을 띄어쓰기로 구분했다.
 
 //연산 과정
-int calculate_postfix(LINK postfix){
+LINK calculate_postfix(LINK postfix){
     struct NODE *temp1_head = malloc(sizeof(struct NODE));
     temp1_head->next=NULL;
 
@@ -184,8 +187,7 @@ int calculate_postfix(LINK postfix){
             }
         }
         else if((postfix->d == '+')){
-            //Add(temp1_head,temp2_head);
-            Addition(temp1_head, temp2_head); //이건 내가 작성한 코드
+            return Addition(temp1_head, temp2_head);
         }
     }
 }
