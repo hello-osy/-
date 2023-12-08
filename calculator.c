@@ -1,6 +1,15 @@
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "list.h"
+typedef char DATA;
+struct linked_list{
+    DATA d;
+    struct linked_list *next;
+};
+typedef struct linked_list ELEMENT;
+typedef ELEMENT              *LINK;
+
 LINK string_to_list(char s[]){
     LINK head;
 
@@ -190,6 +199,13 @@ int main(void){
 
     // 메모리 해제
     free(buffer);
+
+//일단 식을 제대로 문자열로 가져오는 것은 확인함.
+//가져온 식을 문자열로 변환
+//문자열을 연결리스트에 넣고 이것저것 함.
+//후위표기법으로 표현된 식에서 덧셈 구현.
+
+//사실 덧셈이 해결되면 곱셈, 뺄셈도 같이 구현된 것이나 마찬가지임.
 
     return 0;
 }
