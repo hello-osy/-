@@ -33,80 +33,38 @@ char removeNext(struct NODE *target){ //target노드를 지워줌.
     return data;
 }
 
-LINK string_to_list(char s[]);
+LINK input_to_list(void);
 LINK infix_to_postfix(LINK infix);
 LINK calculate_postfix(LINK postfix);
 LINK Addition(LINK NUM1, LINK NUM2);
 
 int main(void){
-    FILE *file;
-    char *buffer;
-    long fileSize;
-    size_t result;
-
-    // 파일 열기
-    file = fopen("math_expression.txt", "rb"); // 읽기 모드로 파일 열기
-
-    if (file == NULL) {
-        printf("파일을 열 수 없습니다.");
-        return 1;
-    }
-
-    // 파일 크기 계산
-    fseek(file, 0, SEEK_END); // 파일 끝으로 이동
-    fileSize = ftell(file); // 현재 위치(파일 끝)에서의 오프셋을 가져와서 파일 크기 계산
-    rewind(file); // 파일 포인터를 다시 파일의 처음으로 이동
-
-    // 파일 크기만큼의 메모리 할당
-    buffer = (char *)malloc(fileSize * sizeof(char));
-
-    if (buffer == NULL) {
-        printf("메모리 할당에 실패했습니다.");
-        return 1;
-    }
-    // 파일 내용을 버퍼에 복사
-    result = fread(buffer, 1, fileSize, file);
-
-    if (result != fileSize) {
-        printf("파일 읽기 오류");
-        return 1;
-    }
-    // 파일 닫기
-    fclose(file);
-    // 읽어온 문자열 출력 또는 사용
-    printf("파일 내용: %s\n", buffer);
-    // 메모리 해제
-    free(buffer);
-
-    //위에 있는 코드는 화면에 식을 보여주는 코드임. 수정이 필요함.
-    //우리는 math_expression에 있는 식을 바로 연결 리스트로 변환해야 함.
-
-    LINK infix=string_to_list(char s[]);//그래서 이 식은 필요가 없을 수도 있음. 다르게 구현해야 함.
-    
-    LINK postfix=infix_to_postfix(infix);
-    LINK result =calculate_postfix(postfix); //calculate_postfix에서 계산 결과를 스택에 저장해야 함.
-    
-    //여기서 LINK result의 각 노드의 data를 하나하나씩 가져와서 텍스트로 보여줘야 함.
+    LINK infix = input_to_list();
+    LINK postfix = infix_to_postfix(infix);
+    LINK result = calculate_postfix(postfix); //calculate_postfix에서 계산 결과를 스택에 저장하고, 출력해서 우리에게 보여줘야 함. (출력하는 함수를 따로 만들어도 됨.)
 }
-//일단 식을 제대로 문자열로 가져오는 것은 확인함.
-//가져온 식을 문자열로 변환
-//문자열을 연결리스트에 넣고 이것저것 함.
-//후위표기법으로 표현된 식에서 덧셈 구현.
 
 //사실 덧셈이 해결되면 곱셈, 뺄셈도 같이 구현된 것이나 마찬가지임.
 
-LINK string_to_list(char s[]){
-    LINK head;
+//연결리스트 쓰고 나면 메모리 반납하는 코드 다 넣어줘야 함.
 
-    if (s[0]=='\0'){
-        return NULL;
+LINK input_to_list(void){
+    struct NODE *input_head = malloc(sizeof(struct NODE));
+    input_head->next=NULL;
+
+    FILE* file = fopen("math_expression.txt", "r"); //읽기 및 쓰기 모드.
+    if (file == NULL) {
+        printf("파일을 열 수 없습니다.\n");
+        return 1;
     }
-    else{ 
-        head=malloc(sizeof(ELEMENT));
-        head -> d = s[0];
-        head -> next = string_to_list(s+1);
-        return head;
+
+    char expression_char;
+    while((expression_char = fgetc(file)) != EOF){
+        addNext(input_head, expression_char);
+        printf("%c", expression_char);
     }
+    fclose(file);
+    return input_head;
 }
 
 LINK infix_to_postfix(LINK infix){
