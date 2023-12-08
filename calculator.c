@@ -1,10 +1,6 @@
 #include <stdbool.h>
-#include "calculator.h"
-#include "list.h"
-#include "add.h"
-//LINK 관한 설명은 list.h참고
-//LINK는 그냥 연결리스트임.
 
+#include "list.h"
 LINK string_to_list(char s[]){
     LINK head;
 
@@ -149,4 +145,51 @@ LINK Addition(LINK NUM1, LINK NUM2){
             }
         }
     }
+}
+
+int main(void){
+    FILE *file;
+    char *buffer;
+    long fileSize;
+    size_t result;
+
+    // 파일 열기
+    file = fopen("math_expression.txt", "rb"); // 읽기 모드로 파일 열기
+
+    if (file == NULL) {
+        printf("파일을 열 수 없습니다.");
+        return 1;
+    }
+
+    // 파일 크기 계산
+    fseek(file, 0, SEEK_END); // 파일 끝으로 이동
+    fileSize = ftell(file); // 현재 위치(파일 끝)에서의 오프셋을 가져와서 파일 크기 계산
+    rewind(file); // 파일 포인터를 다시 파일의 처음으로 이동
+
+    // 파일 크기만큼의 메모리 할당
+    buffer = (char *)malloc(fileSize * sizeof(char));
+
+    if (buffer == NULL) {
+        printf("메모리 할당에 실패했습니다.");
+        return 1;
+    }
+
+    // 파일 내용을 버퍼에 복사
+    result = fread(buffer, 1, fileSize, file);
+    
+    if (result != fileSize) {
+        printf("파일 읽기 오류");
+        return 1;
+    }
+
+    // 파일 닫기
+    fclose(file);
+
+    // 읽어온 문자열 출력 또는 사용
+    printf("파일 내용: %s\n", buffer);
+
+    // 메모리 해제
+    free(buffer);
+
+    return 0;
 }
