@@ -38,16 +38,19 @@ void freeLinkedList(struct NODE** head);
 int main(void) {
     struct NODE *infix_head = input_to_list();
     printf("\ntest_1");
+    PrintData(infix_head);
     struct NODE *postfix_head = infix_to_postfix(infix_head);
     printf("\ntest_2");
-    struct NODE *result_head = calculate_postfix(postfix_head);
+    PrintData(postfix_head);
     printf("\ntest_3");
-    freeLinkedList(&postfix_head);
+    struct NODE *result_head = calculate_postfix(postfix_head);
     printf("\ntest_4");
-    PrintData(result_head);
+    freeLinkedList(&postfix_head);
     printf("\ntest_5");
-    freeLinkedList(&result_head);
+    PrintData(result_head);
     printf("\ntest_6");
+    freeLinkedList(&result_head);
+    printf("\ntest_end");
     return 0;
 }
 
@@ -67,7 +70,7 @@ struct NODE *input_to_list(void) {
         printf("%c", expression_char);
     }
     fclose(file);
-    printf("1");
+    printf("\n1");
     return input_head;
 }
 
@@ -138,7 +141,6 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         if (infix->next==NULL){
             break;
         }
-        //printf("\n."); //현재는 무한 루프 상태인 것으로 보임.
     }
     printf("\n2");
     freeLinkedList(&infix);
@@ -146,15 +148,14 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
     return postfix_head;
 }
 
-struct NODE *calculate_postfix(struct NODE *postfix) {
+struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 가능한 상태로 짰음.
     struct NODE *temp1_head = malloc(sizeof(struct NODE));
     temp1_head->next = NULL;
 
     struct NODE *temp2_head = malloc(sizeof(struct NODE));
     temp2_head->next = NULL;
-
-    while(postfix->next!=NULL){//수정해야함. 마지막 문자를 처리할 수 없음.
-        int signal=1;
+    int signal=1;
+    while(true){
         if ((postfix->data == '.') ||(postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')){
             if (signal==1){
                 while(postfix->data != ' '){ //공백 나오기 전까지. 그러니까 하나의 숫자 덩어리를 처리하는 부분임.
@@ -169,11 +170,24 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
                 }
             }
         }
-        else if((postfix->data == '+')){
+        else if((postfix->data == '+')){ //여기를 못 들어오는 상태임.
             printf("\n3");
-            return Addition(temp1_head, temp2_head);//temp1,temp2 반납 언젠가는 해야 함.
+            removeNext(postfix);
+            struct NODE *addition_result=Addition(temp1_head, temp2_head);
+            freeLinkedList(&temp1_head);
+            freeLinkedList(&temp2_head);
+            printf("\n3");
+            return addition_result;
+        }
+        else{
+            if (postfix->next==NULL){ //들어오자마자 여길 통해서 탈출해버림;
+                break;
+            }else{
+                postfix=postfix->next;
+            }
         }
     }
+    return NULL;
 }
 
 struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
@@ -205,6 +219,7 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
 }
 
 void PrintData(struct NODE *printlist_head) {
+    //이 코드는 반대 순서로 콘솔 창에 보여줌.
     struct NODE *search_node = printlist_head;
     while (search_node != NULL) {
         if (search_node->data != ' ') {
@@ -214,6 +229,24 @@ void PrintData(struct NODE *printlist_head) {
         search_node = search_node->next;
     }
     printf("\n");
+    
+    
+    /* //아직 미완성 코드 부분(올바른 순서로 콘솔 창에 보여주기)
+    while(true){
+        int signal=0;
+        struct NODE *search_node = printlist_head;
+        while((search_node->next!=NULL) && ((search_node->next)->data!=' ')){ //데이터가 저장된 제일 끝 노드까지 감.
+            search_node=search_node->next;
+            signal=1;
+        }
+        char search_char = search_node->data;
+        printf("%c", search_char);
+        search_node=search_node->next;
+        if (signal==0){
+            break;
+        }
+    }
+    */
 }
 
 void freeLinkedList(struct NODE** head) {
