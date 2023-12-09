@@ -32,7 +32,8 @@ struct NODE *input_to_list(void);
 struct NODE *infix_to_postfix(struct NODE *infix);
 struct NODE *calculate_postfix(struct NODE *postfix);
 struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2);
-void *PrintData(struct NODE *printlist_head);
+void PrintData(struct NODE *printlist_head);
+void freeLinkedList(struct NODE** head);
 
 int main(void) {
     struct NODE *infix_head = input_to_list();
@@ -41,16 +42,12 @@ int main(void) {
     printf("\ntest_2");
     struct NODE *result_head = calculate_postfix(postfix_head);
     printf("\ntest_3");
-    // Handle result or perform further actions here
-    PrintData(result_head);
-    // Free memory if needed
-    // Remember to free the allocated memory
-    free(infix_head);
+    freeLinkedList(&postfix_head);
     printf("\ntest_4");
-    free(postfix_head);
+    PrintData(result_head);
     printf("\ntest_5");
-    free(result_head);
-    printf("\ntest_end");
+    freeLinkedList(&result_head);
+    printf("\ntest_6");
     return 0;
 }
 
@@ -83,15 +80,31 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
 
     int signal = 0;
     while (true) {
-        if (infix->data == '('){//char을 비교하므로 '으로 감싸야 함.
+        if(infix->data=' '){
+            infix=infix->next;
+        }
+        else if (infix->data == '('){//char을 비교하므로 '으로 감싸야 함.
             addNext(postfix_head, ' '); //숫자가 아닌 애들은 띄어쓰기로 구분하기 위해서 넣은 코드임.
             addNext(temp_head, removeNext(infix));
             signal=0;
         }
         else if (infix->data == ')'){
-            while (temp_head->data != '('){
-                addNext(postfix_head, removeNext(temp_head));
+            while(true){
+                struct NODE *search_node = temp_head;
+                while(search_node->data!=' '){
+                    search_node==search_node->next; //temp_head 앞쪽의 ' '를 건너뛰기 위한 코드
+                }
+                while((search_node->next!=NULL) && ((search_node->next)->data!=' ')){ //데이터가 저장된 제일 끝 노드까지 감.
+                    search_node=search_node->next;
+                }
+                if(search_node->data=='('){
+                    removeNext(search_node);
+                    break;
+                }
+                addNext(postfix_head,' ');
+                addNext(postfix_head, removeNext(search_node)); 
             }
+            removeNext(infix);
             signal=0;
         }
         else if((infix->data == '*') || (infix->data == '/')){
@@ -125,11 +138,11 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         if (infix->next==NULL){
             break;
         }
-        infix=infix->next;
         //printf("\n."); //현재는 무한 루프 상태인 것으로 보임.
     }
-    printf("2");
-    free(temp_head);
+    printf("\n2");
+    freeLinkedList(&infix);
+    freeLinkedList(&temp_head);
     return postfix_head;
 }
 
@@ -157,7 +170,7 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
             }
         }
         else if((postfix->data == '+')){
-            printf("3");
+            printf("\n3");
             return Addition(temp1_head, temp2_head);//temp1,temp2 반납 언젠가는 해야 함.
         }
     }
@@ -191,14 +204,27 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
     }
 }
 
-void *PrintData(struct NODE *printlist_head){
+void PrintData(struct NODE *printlist_head) {
     struct NODE *search_node = printlist_head;
-    while(search_node->next!=NULL){ //마지막 문자를 처리할 수 없음. 수정해야 함.
-        if(search_node->data != ' '){
+    while (search_node != NULL) {
+        if (search_node->data != ' ') {
             char print_char = search_node->data;
-            printf("%c",print_char);
+            printf("%c", print_char);
         }
-        search_node=printlist_head->next;
+        search_node = search_node->next;
     }
     printf("\n");
+}
+
+void freeLinkedList(struct NODE** head) {
+    struct NODE* current = *head;
+    struct NODE* next;
+
+    while (current != NULL) {
+        next = current->next;
+        free(current); // 노드를 삭제하고 메모리를 해제합니다.
+        current = next;
+    }
+
+    *head = NULL; // head를 NULL로 설정하여 리스트를 빈 상태로 만듭니다.
 }
