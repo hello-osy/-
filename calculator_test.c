@@ -16,11 +16,15 @@ void addNext(struct NODE *target, char data) {
 }
 
 char removeNext(struct NODE *target) {
-    struct NODE *removeNode = target->next;
-    target->next = removeNode->next;
     char data = target->data;
-    target->data = removeNode->data;
-    free(removeNode);
+    if (target->next==NULL){ //사실 이렇게 하면 메모리 낭비가 좀 있음.
+        target->data=' ';
+    }else{
+        struct NODE *removeNode = target->next;
+        target->next = removeNode->next;
+        target->data = removeNode->data;
+        free(removeNode);
+    }
     return data;
 }
 
@@ -31,18 +35,22 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2);
 void *PrintData(struct NODE *printlist_head);
 
 int main(void) {
-    struct NODE *infix = input_to_list();
-    struct NODE *postfix = infix_to_postfix(infix);
-    struct NODE *result = calculate_postfix(postfix);
-
+    struct NODE *infix_head = input_to_list();
+    printf("\ntest_1");
+    struct NODE *postfix_head = infix_to_postfix(infix_head);
+    printf("\ntest_2");
+    struct NODE *result_head = calculate_postfix(postfix_head);
+    printf("\ntest_3");
     // Handle result or perform further actions here
-    PrintData(result);
+    PrintData(result_head);
     // Free memory if needed
     // Remember to free the allocated memory
-    free(infix);
-    free(postfix);
-    free(result);
-
+    free(infix_head);
+    printf("\ntest_4");
+    free(postfix_head);
+    printf("\ntest_5");
+    free(result_head);
+    printf("\ntest_end");
     return 0;
 }
 
@@ -74,7 +82,7 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
     postfix_head->next = NULL;
 
     int signal = 0;
-    while (infix->next != NULL) {
+    while (true) {
         if (infix->data == '('){//char을 비교하므로 '으로 감싸야 함.
             addNext(postfix_head, ' '); //숫자가 아닌 애들은 띄어쓰기로 구분하기 위해서 넣은 코드임.
             addNext(temp_head, removeNext(infix));
@@ -114,8 +122,14 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         else if(infix->data == '.'){
             addNext(postfix_head, removeNext(infix));
         } //소숫점도 일단 그대로 가져옴.
+        if (infix->next==NULL){
+            break;
+        }
+        infix=infix->next;
+        //printf("\n."); //현재는 무한 루프 상태인 것으로 보임.
     }
     printf("2");
+    free(temp_head);
     return postfix_head;
 }
 
@@ -144,7 +158,7 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
         }
         else if((postfix->data == '+')){
             printf("3");
-            return Addition(temp1_head, temp2_head);
+            return Addition(temp1_head, temp2_head);//temp1,temp2 반납 언젠가는 해야 함.
         }
     }
 }
