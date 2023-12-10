@@ -203,38 +203,56 @@ struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 �
     printf("calculate_postfix entered.\n");
 
     while (postfix != NULL) {
-    if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')) {
-        if (signal == 1) {
-            printf("signal 1 entered.\n");
-            while (postfix != NULL && postfix->data != ' ') {
-                addNext(temp1_head, removeNext(postfix));
+        if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')) {
+            if (signal == 1) {
+                printf("signal 1 entered.\n");
+                while (true) {
+                    if (postfix->data == ' '){
+                        break;
+                    }
+                    addNext(temp1_head, removeNext(postfix));
+                }
+                signal = 2;
+            } else if (signal == 2) {
+                printf("signal 2 entered.\n");
+                while (true) {
+                    if (postfix->data == ' '){
+                        break;
+                    }
+                    addNext(temp2_head, removeNext(postfix));
+                }
+                signal = 1;
             }
-            signal = 2;
-        } else if (signal == 2) {
-            printf("signal 2 entered.\n");
-            while (postfix != NULL && postfix->data != ' ') {
-                addNext(temp2_head, removeNext(postfix));
-            }
-            signal = 1;
-        }
-        printf("number found.\n");
-    } else if (postfix->data == '+') {
-        removeNext(postfix);
-        printf("addition ready.\n");
-        break;
-    } else {
-        if (postfix->data == ' ') {
+        } else if (postfix->data == '+') {
             removeNext(postfix);
+            printf("addition ready.\n");
+            break;
+        } else {
+            if (postfix->data == ' ') {
+                removeNext(postfix);
+            }
         }
-        postfix = postfix->next;
     }
-}
-
+    /*
+    while(temp1_head!=NULL){
+        char print_char = temp1_head->data;
+        printf("%c", print_char);
+        temp1_head=temp1_head->next;        
+    }
+    printf("\ntemp1_head printed.\n");
+    while(temp2_head!=NULL){
+        char print_char = temp2_head->data;
+        printf("%c", print_char);
+        temp2_head=temp2_head->next;        
+    }
+    printf("\ntemp2_head printed.\n");
+    */
     struct NODE *addition_result=Addition(temp1_head, temp2_head);
     freeLinkedList(&temp1_head);
     freeLinkedList(&temp2_head);
     freeLinkedList(&postfix);
     return addition_result;
+    //return NULL;
 }
 
 struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
@@ -259,21 +277,17 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
             }
             printf("addition entered.\n");
         }
-        else if (signal==1){
-            if((NUM1 -> next == NULL) && (NUM2 -> next == NULL)){
+        else if (signal == 1) {
+            int num1 = 0, num2 = 0;
+            if ((NUM1->data == ' ') && (NUM2->data == ' ')) {
                 return result_head;
-            }
-
-            int num1, num2;
-            if (NUM1->data==' '){
-                num1=0;
-            } else{
-                num1=(NUM1->data)-'0';
-            }
-            if (NUM2->data==' '){
-                num2=0;
-            } else{
-                num2=(NUM2->data)-'0';
+            } else if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
+                num1 = NUM1->data - '0';
+                num2 = NUM2->data - '0';
+            } else if ((NUM1->data == ' ') && (NUM2->data != ' ')) {
+                num2 = NUM2->data - '0';
+            } else if ((NUM1->data != ' ') && (NUM2->data == ' ')) {
+                num1 = NUM1->data - '0';
             }
 
             int temp_result=num1 + num2 + over_ten_num;
@@ -281,7 +295,8 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
             int result = temp_result%10;
             removeNext(NUM1);
             removeNext(NUM2);
-            addNext(result_head, result+'0');//다시 char로 바꿔주고 넣어준다.
+            char result_char = result+ '0';
+            addNext(result_head, result_char);
         }
     }
 }
@@ -316,5 +331,3 @@ void freeLinkedList(struct NODE** head) { //받은 부분부터 NULL까지의 �
 
     *head = NULL; // head를 NULL로 설정하여 리스트를 빈 상태로 만듭니다.
 }
-
-//아 설마? 다 더한 다음에 head가 마지막 노드인 상태로 리턴하는 건가?
