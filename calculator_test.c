@@ -37,12 +37,17 @@ void freeLinkedList(struct NODE** head);
 
 int main(void) {
     struct NODE *reversed_infix_head = input_to_list(); //reversed_infix_head는 식의 마지막 문자부터 가리키는 상태임.
+    printf("reversed_infix_head generated.\n");
     struct NODE *infix_head = reverseDataOrder(reversed_infix_head); //reversed_infix_head는 메모리 반납됨.
+    printf("infix_head generated.\n");
 
     struct NODE *reversed_postfix_head = infix_to_postfix(infix_head); //reversed_postfix_head는 식의 마지막 문자부터 가리키는 상태임. infix_head는 메모리 반납됨.
+    printf("reversed_postfix_head generated.\n");
     struct NODE *postfix_head = reverseDataOrder(reversed_postfix_head); //reversed_postfix_head는 메모리 반납됨.
+    printf("postfix_head generated.\n");
 
     struct NODE *result_head = calculate_postfix(postfix_head); //result_head는 head가 가장 큰 자리수를 가리킴. postfix_head는 메모리 반납됨.
+    printf("result_head generated.\n");
 
     //결과 프린트해보기
     while(result_head!=NULL){
@@ -57,6 +62,7 @@ int main(void) {
 struct NODE *input_to_list(void) {
     struct NODE *input_head = malloc(sizeof(struct NODE));
     input_head->next = NULL;
+    input_head->data = ' ';
 
     FILE *file = fopen("math_expression.txt", "r");
     if (file == NULL) {
@@ -65,44 +71,45 @@ struct NODE *input_to_list(void) {
     }
 
     char expression_char;
+    int count=0;
     while ((expression_char = fgetc(file)) != EOF) {
         addNext(input_head, expression_char);
         //printf("%c", expression_char);
+        ++count;
     }
+    printf("%d counted.\n", count);
     fclose(file);
-    printf("\n1");
     return input_head;
 }
 
 struct NODE *infix_to_postfix(struct NODE *infix) {
     struct NODE *temp_head = malloc(sizeof(struct NODE));
     temp_head->next = NULL;
+    temp_head->data = ' ';
 
     struct NODE *postfix_head = malloc(sizeof(struct NODE));
     postfix_head->next = NULL;
+    postfix_head->data = ' ';
 
     int signal = 0;
     while (true) {
         if (infix->data == '('){//char을 비교하므로 '으로 감싸야 함.
             addNext(postfix_head, ' '); //숫자가 아닌 애들은 띄어쓰기로 구분하기 위해서 넣은 코드임.
             addNext(temp_head, removeNext(infix));
+            printf("\n( was found.\n");
             signal=0;
         }
         else if (infix->data == ')'){
+            addNext(postfix_head, ' ');
+            printf("\n) was found.\n");
             while(true){
-                struct NODE *search_node = temp_head;
-                while(search_node->data!=' '){
-                    search_node==search_node->next; //temp_head 앞쪽의 ' '를 건너뛰기 위한 코드
+                while(temp_head->data==' '){
+                    temp_head==temp_head->next; //temp_head 앞쪽의 ' '를 건너뛰기 위한 코드
                 }
-                while((search_node->next!=NULL) && ((search_node->next)->data!=' ')){ //데이터가 저장된 제일 끝 노드까지 감.
-                    search_node=search_node->next;
+                while(temp_head->data!='('){
+                    addNext(postfix_head, removeNext(temp_head));
                 }
-                if(search_node->data=='('){
-                    removeNext(search_node);
-                    break;
-                }
-                addNext(postfix_head,' ');
-                addNext(postfix_head, removeNext(search_node)); 
+                removeNext(temp_head); //temp_head의 (를 지움.(혹은 ' '으로 만듦)
             }
             removeNext(infix);
             signal=0;
@@ -120,6 +127,7 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         }
         else if((infix->data == '+') || (infix->data == '-')){
             addNext(postfix_head, ' ');
+            printf("\n+ or - was found.\n");
             if (signal<1){
                 addNext(temp_head, removeNext(infix));
             }
@@ -131,13 +139,20 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         }
         else if ((infix->data == '0') || (infix->data == '1') || (infix->data == '2') || (infix->data == '3') || (infix->data == '4') || (infix->data == '5') || (infix->data == '6') || (infix->data == '7') || (infix->data == '8') || (infix->data == '9')){
             addNext(postfix_head, removeNext(infix));
+            printf("a number was found.");
         } //일단 공백 입력은 처리했음. //오타도 처리했음.
         else if(infix->data == '.'){
             addNext(postfix_head, removeNext(infix));
         } //소숫점도 일단 그대로 가져옴.
-        
-        if (infix->next==NULL){
-            break;
+        else{//쓸데없는 애들 처리하는 부분 (공백 문자도 포함.)
+            removeNext(infix);
+            printf("\n trash was found.");
+            
+            if(infix->data=' '){
+                if (infix->next == NULL){
+                    break;
+                }
+            }
         }
     }
     printf("\n2");
@@ -149,9 +164,12 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
 struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 가능한 상태로 짰음.
     struct NODE *temp1_head = malloc(sizeof(struct NODE));
     temp1_head->next = NULL;
+    temp1_head->data = ' ';
 
     struct NODE *temp2_head = malloc(sizeof(struct NODE));
     temp2_head->next = NULL;
+    temp2_head->data = ' ';
+
     int signal=1;
     while(true){
         if ((postfix->data == '.') ||(postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')){
@@ -194,6 +212,8 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
     int over_ten_num=0;
     struct NODE *result_head = malloc(sizeof(struct NODE));
     result_head->next=NULL;
+    result_head->data = ' ';
+
     while(true){
         if (NUM1 ->data == ' '){
             removeNext(NUM1);
@@ -221,17 +241,22 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
 struct NODE *reverseDataOrder(struct NODE *false_head){
     struct NODE *true_head = malloc(sizeof(struct NODE));
     true_head->next=NULL;
+    true_head->data=' ';
 
-    while(false_head!=NULL){
-        addNext(true_head, false_head->data);
-        false_head=false_head->next;
+    while(true){
+        addNext(true_head, removeNext(false_head));
+        if (false_head->data==' '){
+            if(false_head->next==NULL){
+                break;
+            }
+        }
     } //false_head를 true_head로 순서 바꿔서 복사함.
     freeLinkedList(&false_head);
 
     return true_head;
 }
 
-void freeLinkedList(struct NODE** head) {
+void freeLinkedList(struct NODE** head) { //받은 부분부터 NULL까지의 연결리스트 부분의 메모리를 반납해줌.(자동으로 맨 처음부터 지우는 것이 아니다. 우리가 맨 처음 부분을 넣어줘야 처음부터 지움.)
     struct NODE* current = *head;
     struct NODE* next;
 
