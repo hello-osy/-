@@ -44,9 +44,7 @@ int main(void) {
     //결과 프린트해보기
     while(infix_head!=NULL){
         char print_char = infix_head->data;
-        if(print_char!=' '){
-            printf("%c", print_char);
-        }
+        printf("%c", print_char);
         infix_head=infix_head->next;        
     }
     printf("\ninfix_head printed.");
@@ -55,32 +53,29 @@ int main(void) {
     printf("reversed_postfix_head generated.\n");
     struct NODE *postfix_head = reverseDataOrder(reversed_postfix_head); //reversed_postfix_head는 메모리 반납됨.
     printf("postfix_head generated.\n");
-
+    
+    
     //결과 프린트해보기
     while(postfix_head!=NULL){
         char print_char = postfix_head->data;
-        if(print_char!=' '){
-            printf("%c", print_char);
-        }
+        printf("%c", print_char);
         postfix_head=postfix_head->next;        
     }
-    printf("\npostfix_head printed."); //postfix_head에 아무것도 안 든 상태.
-
+    printf("\npostfix_head printed."); 
     /*
+    //이 주석 아래 부분만 해결하면 됨.
+
     struct NODE *result_head = calculate_postfix(postfix_head); //result_head는 head가 가장 큰 자리수를 가리킴. postfix_head는 메모리 반납됨.
     printf("result_head generated.\n");
     
     //결과 프린트해보기
     while(result_head!=NULL){
         char print_char = result_head->data;
-        if(print_char!=' '){
-            printf("%c", print_char);
-        }
+        printf("%c", print_char);
         result_head=result_head->next;        
     }
     printf("\nresult_head printed.");
     return 0;
-
     */
 }
 
@@ -128,16 +123,19 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
             signal=0;
         }
         else if (infix->data == ')'){
-            addNext(postfix_head, ' ');
-            //printf("\n) was found.\n");
-            while(true){
-                while(temp_head->data==' '){
-                    temp_head==temp_head->next; //temp_head 앞쪽의 ' '를 건너뛰기 위한 코드
-                }
-                while(temp_head->data!='('){
+            while(temp_head->data != '('){
+                if (temp_head->data != ' '){
+                    addNext(postfix_head, ' ');
                     addNext(postfix_head, removeNext(temp_head));
+                    printf("+moved to postfix_head\n");
+                }else{
+                    removeNext(temp_head);
                 }
-                removeNext(temp_head); //temp_head의 (를 지움.(혹은 ' '으로 만듦)
+            }
+
+
+            if (temp_head->data == '(') {
+                removeNext(temp_head); // '('를 지움
             }
             removeNext(infix);
             signal=0;
@@ -155,8 +153,9 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         }
         else if((infix->data == '+') || (infix->data == '-')){
             addNext(postfix_head, ' ');
-            //printf("\n+ or - was found.\n");
+            printf("\n+ or - was found.\n");
             if (signal<1){
+                printf("+added\n");
                 addNext(temp_head, removeNext(infix));
             }
             else{
@@ -177,7 +176,7 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
             ++trash_cnt;
             //printf("\n trash was found.");
             
-            if(infix->data=' '){
+            if(infix->data==' '){
                 if (infix->next == NULL){
                     break;
                 }
@@ -204,7 +203,6 @@ struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 �
     int signal=1;
     while(true){
         if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')){
-            printf("hello");
             if (signal==1){
                 while(postfix->data != ' '){ //공백 나오기 전까지. 그러니까 하나의 숫자 덩어리를 처리하는 부분임.
                     addNext(temp1_head,removeNext(postfix)); //첫 번째 숫자 덩어리
