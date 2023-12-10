@@ -15,7 +15,8 @@
 - 12/02(calculator.c 변경사항) : removeNext 함수 수정. addition.c 파일의 Add함수를 사용할 수 있도록 수정함. Add에 2개의 연결리스트를 인자로 줬음.
 - 12/02(calculator.c 변경사항) : addition.c 코드가 잘 이해되지 않아서 일단 같은 역할을 하는 코드를 calculator.c에 추가함.
 - 12/08(calculator.c 변경사항) : 모든 코드를 이 파일로 합쳐놓음. 이 파일에 있는 내용만 수정하면 됨. 처음부터 식을 연결리스트에 저장하도록 함.
-- 12/09(calculator.c 변경사항) : 함수들을 약간 수정함. LINK, NODE가 둘 다 있었는데 NODE로 통일함.
+- 12/09(calculator_test.c 변경사항) : 함수들을 약간 수정함. LINK, NODE가 둘 다 있었는데 NODE로 통일함.
+- 12/10(calculator_test.c 변경사항) : 진짜 아주 조금만 수정하면 덧셈은 성공할 수도?
 
 ### 앞으로 해결해야 할 문제
 - 12/02 : addition.c파일에서 덧셈을 처리해야 함. calculator.c파일에 아직 해결해야할 문제들이 있음.(코드 내 주석 참고)
