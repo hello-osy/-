@@ -54,7 +54,7 @@ int main(void) {
     struct NODE *postfix_head = reverseDataOrder(reversed_postfix_head); //reversed_postfix_head는 메모리 반납됨.
     printf("postfix_head generated.\n");
     
-    
+    /*
     //결과 프린트해보기
     while(postfix_head!=NULL){
         char print_char = postfix_head->data;
@@ -62,7 +62,7 @@ int main(void) {
         postfix_head=postfix_head->next;        
     }
     printf("\npostfix_head printed."); 
-    /*
+    */
     //이 주석 아래 부분만 해결하면 됨.
 
     struct NODE *result_head = calculate_postfix(postfix_head); //result_head는 head가 가장 큰 자리수를 가리킴. postfix_head는 메모리 반납됨.
@@ -76,7 +76,7 @@ int main(void) {
     }
     printf("\nresult_head printed.");
     return 0;
-    */
+    
 }
 
 struct NODE *input_to_list(void) {
@@ -191,7 +191,6 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
 }
 
 struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 가능한 상태로 짰음.
-    printf("calculate_postfix entered.\n");
     struct NODE *temp1_head = malloc(sizeof(struct NODE));
     temp1_head->next = NULL;
     temp1_head->data = ' ';
@@ -201,40 +200,40 @@ struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 �
     temp2_head->data = ' ';
 
     int signal=1;
-    while(true){
-        if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')){
-            if (signal==1){
-                while(postfix->data != ' '){ //공백 나오기 전까지. 그러니까 하나의 숫자 덩어리를 처리하는 부분임.
-                    addNext(temp1_head,removeNext(postfix)); //첫 번째 숫자 덩어리
-                    signal=2;
-                }
+    printf("calculate_postfix entered.\n");
+
+    while (postfix != NULL) {
+    if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')) {
+        if (signal == 1) {
+            printf("signal 1 entered.\n");
+            while (postfix != NULL && postfix->data != ' ') {
+                addNext(temp1_head, removeNext(postfix));
             }
-            else if (signal==2){
-                while(postfix->data != ' '){ //공백 나오기 전까지. 그러니까 하나의 숫자 덩어리를 처리하는 부분임.
-                    addNext(temp2_head,removeNext(postfix)); //두 번째 숫자 덩어리
-                    signal=1;
-                }
+            signal = 2;
+        } else if (signal == 2) {
+            printf("signal 2 entered.\n");
+            while (postfix != NULL && postfix->data != ' ') {
+                addNext(temp2_head, removeNext(postfix));
             }
-            printf("number found.\n");
+            signal = 1;
         }
-        else if(postfix->data == '+'){
+        printf("number found.\n");
+    } else if (postfix->data == '+') {
+        removeNext(postfix);
+        printf("addition ready.\n");
+        break;
+    } else {
+        if (postfix->data == ' ') {
             removeNext(postfix);
-            printf("addition ready.\n");
-            break;
         }
-        else{
-            if((postfix->data==' ') && (postfix->next=NULL)){
-                break;
-            }
-            removeNext(postfix);
-        }
+        postfix = postfix->next;
     }
+}
 
     struct NODE *addition_result=Addition(temp1_head, temp2_head);
     freeLinkedList(&temp1_head);
     freeLinkedList(&temp2_head);
     freeLinkedList(&postfix);
-    printf("\n3");
     return addition_result;
 }
 
