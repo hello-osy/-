@@ -325,121 +325,164 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
 struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어옴.
     //소수 간의 계산 처리해야 함.
-    struct NODE *search1_node = NUM1;
+
+    struct NODE *search1_node = copyLinkedList(NUM1);
+    struct NODE *search2_node = copyLinkedList(NUM2);
+    //printLinkedList(search1_node); 
+    //printLinkedList(search2_node); //NUM1,NUM2 잘 들어옴.
     int num1_cnt=0; //연결리스트의 노드 개수를 세는 것임(수의 길이와 조금 차이가 있는 값임.)
+    int num2_cnt=0;
     while(search1_node!=NULL){
         ++num1_cnt;
         search1_node=search1_node->next;
     }
-    freeLinkedList(&search1_node);
-
-    struct NODE *search2_node = NUM1;
-    int num2_cnt=0; //연결리스트의 노드 개수를 세는 것임(수의 길이와 조금 차이가 있는 값임.)
     while(search2_node!=NULL){
         ++num2_cnt;
         search2_node=search2_node->next;
     }
+    freeLinkedList(&search1_node);
     freeLinkedList(&search2_node);
-    
-    if (num1_cnt>=num2_cnt){
-        int signal=0;
-        int subtract_next = 0;
-        struct NODE *result_head = malloc(sizeof(struct NODE));
-        result_head->next=NULL;
-        result_head->data = ' ';
-        while(true){
-            if (signal==0){
-                if ((NUM1 ->data != ' ') && (NUM2 ->data != ' ')){
-                    signal=1;
-                }else{
-                    if (NUM1 ->data == ' '){
-                        removeNext(NUM1);
-                    }
-                    if (NUM2 ->data == ' '){
-                        removeNext(NUM2);
-                    }
-                }
-                printf("subtraction entered.\n");
-            }
-            else if (signal == 1) {
-                int num1 = 0, num2 = 0;
-                if ((NUM1->data == ' ') && (NUM2->data == ' ')) {
-                    return result_head;
-                } else if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
-                    num1 = NUM1->data - '0';
-                    num2 = NUM2->data - '0';
-                } else if ((NUM1->data != ' ') && (NUM2->data == ' ')) { //무조건 NUM1 이 NUM2보다 커서 addition에 있던 조건 하나를 삭제함
-                    num1 = NUM1->data - '0';
-                }
-
-                int temp_result= num1 - num2 + subtract_next; //subtract_next는 음수 또는 0이어서 더한 것임.
-                if(temp_result<0){
-                    subtract_next=-1;
-                    temp_result=10+temp_result; //예를 들자면 윗자리에서 10 빌려와서 -3을 7로 바꾸는 것임.
-                }else{
-                    subtract_next=0;
-                }
-                removeNext(NUM1);
-                removeNext(NUM2);
-                char result_char = temp_result+ '0';
-                addNext(result_head, result_char);
-            }
+    //printLinkedList(NUM1);
+    //printLinkedList(NUM2);
+    bool change_calculation_order = false;
+    if (num1_cnt==num2_cnt){
+        struct NODE *search1_node = reverseDataOrder(copyLinkedList(NUM1));//copyLinkedList(reverseDataOrder(NUM1)); 하면 오류남. reverseDataOrder하면 넣은 값이 갈려버림.
+        struct NODE *search2_node = reverseDataOrder(copyLinkedList(NUM2));
+        while(search1_node->data==search2_node->data){
+            removeNext(search1_node);
+            removeNext(search2_node);
         }
+        int num1=(search1_node->data)-'0';
+        int num2=(search2_node->data)-'0';
+        if(num1>num2){//큰 수가 앞에 있을 경우, 자리 안 바꿈
+            change_calculation_order=false;
+        } else if(num1<num2){ //큰 수가 뒤에 있을 경우, 자리 바꿈
+            change_calculation_order=true;
+        }
+        freeLinkedList(&search1_node);
+        freeLinkedList(&search2_node);
     }
-
-    else if (num1_cnt<num2_cnt){
-        int signal=0;
+    printLinkedList(NUM1);
+    printLinkedList(NUM2);
+    
+    while(NUM1->data==' '){
+        removeNext(NUM1);
+    }
+    while(NUM2->data==' '){
+        removeNext(NUM2);
+    }
+    printLinkedList(NUM1);
+    printLinkedList(NUM2);
+    if ((num1_cnt > num2_cnt) || ((!change_calculation_order)&&(num1_cnt==num2_cnt))) { // 자리 안 바꾸는 경우 || (!change_calculation_order)
+        printf("calculation_order not changed\n");
+        int signal = 0;
         int subtract_next = 0;
         struct NODE *result_head = malloc(sizeof(struct NODE));
-        result_head->next=NULL;
+        result_head->next = NULL;
         result_head->data = ' ';
-        while(true){
-            if (signal==0){
-                if ((NUM2 ->data != ' ') && (NUM1 ->data != ' ')){
-                    signal=1;
-                }else{
-                    if (NUM2 ->data == ' '){
+
+        while ((NUM1->data != ' ') || (NUM2->data != ' ')) {
+            //printLinkedList(NUM1);
+            //printLinkedList(NUM2);
+            if (signal == 0) {
+                if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
+                    signal = 1;
+                } else {
+                    if (NUM1->data == ' ') {
+                        removeNext(NUM1);
+                    }
+                    if (NUM2->data == ' ') {
                         removeNext(NUM2);
                     }
-                    if (NUM1 ->data == ' '){
+                }
+            } else if (signal == 1) {
+                int num1 = 0, num2 = 0;
+                if (NUM1->data != ' ') {
+                    num1 = NUM1->data - '0';
+                }
+                if (NUM2->data != ' ') {
+                    num2 = NUM2->data - '0';
+                }
+
+                int temp_result = num1 - num2 + subtract_next;
+                if (temp_result < 0) {
+                    subtract_next = -1;
+                    temp_result = 10 + temp_result;
+                } else {
+                    subtract_next = 0;
+                }
+                printf("result_head added.\n");
+                addNext(result_head, temp_result + '0');
+                if (NUM1->data != ' ') {
+                    removeNext(NUM1);
+                }
+                if (NUM2->data != ' ') {
+                    removeNext(NUM2);
+                }
+            }
+        }
+        return result_head;
+    } else if ((num1_cnt < num2_cnt) || ((change_calculation_order)&&(num1_cnt==num2_cnt))) { // 자리 바꾸는 경우
+        printf("calculation_order changed\n");
+        int signal = 0;
+        int subtract_next = 0;
+        struct NODE *result_head = malloc(sizeof(struct NODE));
+        result_head->next = NULL;
+        result_head->data = ' ';
+
+        printLinkedList(NUM1);
+        printLinkedList(NUM2);
+        
+        while ((NUM2->data != ' ') || (NUM1->data != ' ')) {
+            printf("while entered");
+            if (signal == 0) {
+                if ((NUM2->data != ' ') && (NUM1->data != ' ')) {
+                    signal = 1;
+                } else {
+                    if (NUM2->data == ' ') {
+                        removeNext(NUM2);
+                    }
+                    if (NUM1->data == ' ') {
                         removeNext(NUM1);
                     }
                 }
-                printf("subtraction entered.\n");
-            }
-            else if (signal == 1) {
+            } else if (signal == 1) {
                 int num2 = 0, num1 = 0;
-                if ((NUM2->data == ' ') && (NUM1->data == ' ')) {
-                    addNext(result_head, '-'); //위치를 바꿔 계산한 결과에 '-'를 붙임.
-                    return result_head;
-                } else if ((NUM2->data != ' ') && (NUM1->data != ' ')) {
+                if (NUM2->data != ' ') {
                     num2 = NUM2->data - '0';
+                }
+                if (NUM1->data != ' ') {
                     num1 = NUM1->data - '0';
-                } else if ((NUM2->data != ' ') && (NUM1->data == ' ')) { //무조건 NUM2 이 NUM1보다 커서 addition에 있던 조건 하나를 삭제함
-                    num2 = NUM2->data - '0';
                 }
 
-                int temp_result= num2 - num1 + subtract_next; //subtract_next는 음수 또는 0이어서 더한 것임.
-                if(temp_result<0){
-                    subtract_next=-1;
-                    temp_result=10+temp_result; //예를 들자면 윗자리에서 10 빌려와서 -3을 7로 바꾸는 것임.
-                }else{
-                    subtract_next=0;
+                int temp_result = num2 - num1 + subtract_next;
+                if (temp_result < 0) {
+                    subtract_next = -1;
+                    temp_result = 10 + temp_result;
+                } else {
+                    subtract_next = 0;
                 }
-                removeNext(NUM2);
-                removeNext(NUM1);
-                char result_char = temp_result+ '0';
-                addNext(result_head, result_char);
+                printf("result_head added.\n");
+                addNext(result_head, temp_result + '0');
+                if (NUM2->data != ' ') {
+                    removeNext(NUM2);
+                }
+                if (NUM1->data != ' ') {
+                    removeNext(NUM1);
+                }
             }
         }
+        addNext(result_head,'-');
+        printLinkedList(result_head);
+        return result_head;
     }
 }
 
 struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어와서 괜찮음 이대로 해도 됨.
     //소수 간의 계산 처리해야 함.
-    printLinkedList(NUM1);
-    printLinkedList(NUM2); //NUM1,NUM2 잘 들어옴
+    //printLinkedList(NUM1);
+    //printLinkedList(NUM2); //NUM1,NUM2 잘 들어옴
     struct NODE *result_head = malloc(sizeof(struct NODE));
     result_head->next=NULL;
     result_head->data = ' '; 
@@ -488,7 +531,7 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
             if (over_ten_num!=0){
                 addNext(temp_result, over_ten_num+'0');
             }
-            printLinkedList(temp_result);
+            //printLinkedList(temp_result);
             if (result_head->next==NULL){
                 result_head=temp_result;
             }else{
@@ -499,7 +542,7 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
                 freeLinkedList(&temp1_head);
                 freeLinkedList(&temp2_head);
                 result_head = addition_result;
-                printLinkedList(result_head);
+                //printLinkedList(result_head);
                 printf("multiply_fragment added to result_head\n"); //현재 상황을 볼 때, 한 번도 result_head가 업데이트 안 되는 것으로 보임.
             }
 
