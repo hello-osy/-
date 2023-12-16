@@ -192,7 +192,7 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
     return postfix_head;
 }
 
-struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 가능한 상태로 짰음.
+struct NODE *calculate_postfix(struct NODE *postfix) {
     struct NODE *temp1_head = malloc(sizeof(struct NODE));
     temp1_head->next = NULL;
     temp1_head->data = ' ';
@@ -201,72 +201,72 @@ struct NODE *calculate_postfix(struct NODE *postfix) { //일단 1회 연산만 �
     temp2_head->next = NULL;
     temp2_head->data = ' ';
 
-    int signal=1;
+    int signal = 1;
     printf("calculate_postfix entered.\n");
-    
+
     struct NODE *result;
-    while (postfix != NULL) {
-        if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')) {
+    struct NODE *current = postfix;
+
+    while (current != NULL) {
+        if ((current->data == '.') || (current->data == '0') || (current->data == '1') || (current->data == '2') || (current->data == '3') || (current->data == '4') || (current->data == '5') || (current->data == '6') || (current->data == '7') || (current->data == '8') || (current->data == '9')) {
             if (signal == 1) {
                 printf("signal 1 entered.\n");
-                while (true) {
-                    if (postfix->data == ' '){
-                        break;
-                    }
-                    addNext(temp1_head, removeNext(postfix));
+                while (current->data != ' ') {
+                    addNext(temp1_head, removeNext(current));
                 }
                 signal = 2;
             } else if (signal == 2) {
                 printf("signal 2 entered.\n");
-                while (true) {
-                    if (postfix->data == ' '){
-                        break;
-                    }
-                    addNext(temp2_head, removeNext(postfix));
+                while (current->data != ' ') {
+                    addNext(temp2_head, removeNext(current));
                 }
                 signal = 1;
             }
-        } else if (postfix->data == '+') {
-            removeNext(postfix);
+        } else if (current->data == '+') {
+            removeNext(current);
             printf("addition ready.\n");
-            struct NODE *addition_result=Addition(temp1_head, temp2_head);
+            struct NODE *addition_result = Addition(temp1_head, temp2_head);
             freeLinkedList(&temp1_head);
             freeLinkedList(&temp2_head);
 
-            struct NODE *temp1_head = addition_result;
-            struct NODE *temp2_head = malloc(sizeof(struct NODE));
+            temp1_head = reverseDataOrder(addition_result);
+            temp2_head = malloc(sizeof(struct NODE));
             temp2_head->next = NULL;
             temp2_head->data = ' ';
-            signal=2;
-        } else if (postfix->data == '-') {
-            removeNext(postfix);
+            signal = 2;
+        } else if (current->data == '-') {
+            removeNext(current);
             printf("subtraction ready.\n");
-            struct NODE *subtraction_result=Subtraction(temp1_head, temp2_head);
+            struct NODE *subtraction_result = Subtraction(temp1_head, temp2_head);
             freeLinkedList(&temp1_head);
             freeLinkedList(&temp2_head);
 
-            struct NODE *temp1_head = subtraction_result;
-            struct NODE *temp2_head = malloc(sizeof(struct NODE));
+            temp1_head = reverseDataOrder(subtraction_result);
+            temp2_head = malloc(sizeof(struct NODE));
             temp2_head->next = NULL;
             temp2_head->data = ' ';
-            signal=2;
-        } else if (postfix->data == '*') {
-            removeNext(postfix);
+            signal = 2;
+        } else if (current->data == '*') {
+            removeNext(current);
             printf("multiplication ready.\n");
-            struct NODE *multiplication_result=Multiplication(temp1_head, temp2_head);
+            struct NODE *multiplication_result = Multiplication(temp1_head, temp2_head);
             freeLinkedList(&temp1_head);
             freeLinkedList(&temp2_head);
 
-            struct NODE *temp1_head = multiplication_result;
-            struct NODE *temp2_head = malloc(sizeof(struct NODE));
+            temp1_head = reverseDataOrder(multiplication_result);
+            temp2_head = malloc(sizeof(struct NODE));
             temp2_head->next = NULL;
             temp2_head->data = ' ';
-            signal=2;
+            signal = 2;
+        } else {
+            removeNext(current);
         }
-        result = temp1_head; //while문 나갔을 때의 result는 가장 마지막 연산 결과를 가지고 있는 연결리스트일 것임.
+        result = temp1_head;
+        current=current->next;
     }
+    freeLinkedList(&current);
     freeLinkedList(&postfix);
-
+    result=reverseDataOrder(result); //result는 마지막 temp1_head인데, temp_head는 뒤집힌 상태임. 원래 상태로 만들어준 것임.
     return result;
 }
 
