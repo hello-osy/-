@@ -77,6 +77,7 @@ int main(void) {
         result_head=result_head->next;        
     }
     printf("\nresult_head printed.");
+    
     return 0;
     
 }
@@ -129,7 +130,7 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
                 if (temp_head->data != ' '){
                     addNext(postfix_head, ' ');
                     addNext(postfix_head, removeNext(temp_head));
-                    printf("+moved to postfix_head\n");
+                    printf("something moved to postfix_head\n");
                 }else{
                     removeNext(temp_head);
                 }
@@ -144,6 +145,7 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         }
         else if((infix->data == '*') || (infix->data == '/')){
             addNext(postfix_head, ' ');
+            printf("\n* or / was found.\n");
             if (signal<2){
                 addNext(temp_head, removeNext(infix));
             }
@@ -157,7 +159,6 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
             addNext(postfix_head, ' ');
             printf("\n+ or - was found.\n");
             if (signal<1){
-                printf("+added\n");
                 addNext(temp_head, removeNext(infix));
             }
             else{
@@ -178,10 +179,22 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
             ++trash_cnt;
             //printf("\n trash was found.");
             
-            if(infix->data==' '){
-                if (infix->next == NULL){
-                    break;
+            if((infix->data==' ') && (infix->next == NULL)){//infix 마지막 까지 간 경우임.
+                if (temp_head->next !=NULL){ //temp_head에 데이터가 들어있는 경우 데이터를 postfix_head로 넘겨준다.
+                    while (true){
+                        if(temp_head->data!=' '){
+                            addNext(postfix_head, ' ');
+                            addNext(postfix_head, removeNext(temp_head));
+                        }else{
+                            removeNext(temp_head);
+                        }
+
+                        if(temp_head->data==' ' && temp_head->next==NULL){
+                            break;
+                        }
+                    }
                 }
+                break;
             }
         }
     }
@@ -211,14 +224,20 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
         if ((current->data == '.') || (current->data == '0') || (current->data == '1') || (current->data == '2') || (current->data == '3') || (current->data == '4') || (current->data == '5') || (current->data == '6') || (current->data == '7') || (current->data == '8') || (current->data == '9')) {
             if (signal == 1) {
                 printf("signal 1 entered.\n");
-                while (current->data != ' ') {
+                while (true) {
                     addNext(temp1_head, removeNext(current));
+                    if ((current->data == ' ')){
+                        break;
+                    }
                 }
                 signal = 2;
             } else if (signal == 2) {
                 printf("signal 2 entered.\n");
-                while (current->data != ' ') {
+                while (true) {
                     addNext(temp2_head, removeNext(current));
+                    if ((current->data == ' ')){
+                        break;
+                    }
                 }
                 signal = 1;
             }
@@ -262,7 +281,6 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
             removeNext(current);
         }
         result = temp1_head;
-        current=current->next;
     }
     freeLinkedList(&current);
     freeLinkedList(&postfix);
@@ -272,7 +290,6 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
 
 struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어와서 괜찮음 이대로 해도 됨.
-    //소수 간의 계산 처리해야 함.
     int over_ten_num=0;
     struct NODE *result_head = malloc(sizeof(struct NODE));
     result_head->next=NULL;
@@ -316,7 +333,6 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
         }
     }
 }
-
 struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어옴.
     //소수 간의 계산 처리해야 함.
