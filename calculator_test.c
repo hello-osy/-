@@ -66,7 +66,7 @@ int main(void) {
     printf("\npostfix_head printed."); 
     */
     //이 주석 아래 부분만 해결하면 됨.
-
+    
     struct NODE *result_head = calculate_postfix(postfix_head); //result_head는 head가 가장 큰 자리수를 가리킴. postfix_head는 메모리 반납됨.
     printf("result_head generated.\n");
     
@@ -212,7 +212,6 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
     printf("calculate_postfix entered.\n");
 
     struct NODE *result;
-
     while (true) {
         if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')) {
             if (signal == 1) {
@@ -238,6 +237,7 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
             removeNext(postfix);
             printf("addition ready.\n");
             struct NODE *addition_result = Addition(temp1_head, temp2_head);
+            //return addition_result;
             freeLinkedList(&temp1_head);
             freeLinkedList(&temp2_head);
 
@@ -452,9 +452,10 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
     int over_ten_num=0;
     struct NODE *result_head = malloc(sizeof(struct NODE));
     result_head->next=NULL;
-    result_head->data = '0'; //여기서는 특이하게 ' '이 아닌 '0'으로 적음. Addition을 부를 때 잘 작동하게 하기 위해서임.
+    result_head->data = ' '; 
 
     int signal=0;
+    int count=0;
     while(true){
         if (signal == 0){
             if ((NUM1 ->data != ' ') && (NUM2 ->data != ' ')){
@@ -474,6 +475,9 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
             struct NODE *temp_result = malloc(sizeof(struct NODE));
             temp_result->next=NULL;
             temp_result->data = ' ';
+            for (int i=0;i<count;i++){
+                addNext(temp_result,'0'); //multiply_num의 자릿수가 올라간 만큼을 temp_result에 반영하기 위한 것임.
+            }
             int over_ten_num=0;
             int multiply1_num = (NUM1->data) - '0'; //num2에 곱할 num1의 가장 작은 자리수
             while(true){
@@ -491,10 +495,15 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
             if (over_ten_num!=0){
                 addNext(temp_result, over_ten_num+'0');
             }
-
-            result_head=Addition(reverseDataOrder(result_head), reverseDataOrder(temp_result)); //Addition에 들어가는 애들은 뒤집힌 상태여야 함.
+            
+            if (result_head->next==NULL){
+                result_head=temp_result;
+            }else{
+                result_head=Addition(reverseDataOrder(result_head), reverseDataOrder(temp_result)); //Addition에 들어가는 애들은 뒤집힌 상태여야 함.
+            }
 
             removeNext(NUM1); //가장 작은 자리수 제거
+            ++count;
             if(NUM1->next==NULL && NUM1->data==' '){
                 return result_head;
             }
