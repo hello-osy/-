@@ -90,12 +90,15 @@ char *readFile(void) {
     
     int chr_asci;
     int isnum = 0; // 들어온 chr 값(숫자면 0, 사칙연산 1, 여는 괄호 2, 닫는 괄호 3, 소수점 4)
-    int is_open = 0, i = 0, dot = 0;
+    int is_open = 0, i = 0, dot = 0, isdiv = 0;
     
     while((chr = fgetc(file)) != EOF) {
         chr_asci = chr - '0';
         if (chr_asci < 0) { // chr가 숫자가 아닐 때
-            if (chr_asci == -8) { // 여는 괄호일 때
+            if (chr_asci == -1) {
+                isdiv = 1;
+            }
+            else if (chr_asci == -8) { // 여는 괄호일 때
                 is_open++;
                 isnum = 2;
             }
@@ -138,6 +141,14 @@ char *readFile(void) {
                 if (isnum != 1 && isnum != 4) {
                     isnum = 1;
                     dot--;
+                }
+                else if (isdiv) {
+                    if (chr_asci == 0) {
+                        printf("Error: 0으로 나눌 수 없습니다.");
+                    }
+                    else {
+                        printf("Error: 나눗셈이 구현되지 않았습니다.");
+                    }
                 }
                 else {
                     printf("Error: 연산자가 연달아 나올 수 없습니다.");
@@ -408,13 +419,19 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
     struct NODE *n2 = copyLinkedList(NUM2);
     int cnt_num1=0;
     int cnt_num2=0;
-    while(n1->data!='.'){
+    while(true){
         ++cnt_num1;
-        n1=n1->next;
+        removeNext(n1);
+        if ((n1->data=='.') || ((n1->data=' ')&&(n1->next==NULL))){
+            break;
+        }
     }
-    while(n2->data!='.'){
+    while(true){
         ++cnt_num2;
-        n2=n2->next;
+        removeNext(n2);
+        if ((n2->data=='.') || ((n2->data=' ')&&(n2->next==NULL))){
+            break;
+        }
     }
     freeLinkedList(&n1);
     freeLinkedList(&n2);
