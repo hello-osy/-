@@ -424,6 +424,9 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
     }
     freeLinkedList(&postfix);
     result=reverseDataOrder(result); //result는 마지막 temp1_head인데, temp_head는 뒤집힌 상태임. 원래 상태로 만들어준 것임.
+    while((result->data==' ') || (result->data=='0')){
+            removeNext(result);
+        }
     return result;
 }
 
@@ -638,29 +641,57 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
             }
         }
         while ((NUM1->data != ' ') || (NUM2->data != ' ')) {
-            int num1 = 0, num2 = 0;
-            if (NUM1->data != ' ') {
-                num1 = NUM1->data - '0';
-            }
-            if (NUM2->data != ' ') {
-                num2 = NUM2->data - '0';
-            }
-
-            int temp_result = num1 - num2 + subtract_next;
-            if (temp_result < 0) { //윗 자리에서 10 빌려온다.
-                subtract_next = -1;
-                temp_result = 10 + temp_result;
-            } else {
-                subtract_next = 0;
-            }
-            printf("result_head added.\n");
-            addNext(result_head, temp_result + '0');
-
-            if (NUM1->data != ' ') {
+            if ((NUM1->data == '.')&&(NUM2->data == '.')){
                 removeNext(NUM1);
-            }
-            if (NUM2->data != ' ') {
                 removeNext(NUM2);
+                int num1 = 0, num2 = 0;
+                if (NUM1->data != ' ') {
+                    num1 = NUM1->data - '0';
+                }
+                if (NUM2->data != ' ') {
+                    num2 = NUM2->data - '0';
+                }
+                int temp_result = num1 - num2 + subtract_next;
+                if (temp_result < 0) { //윗 자리에서 10 빌려온다.
+                    subtract_next = -1;
+                    temp_result = 10 + temp_result;
+                } else {
+                    subtract_next = 0;
+                }
+                printf("result_head added.\n");
+                addNext(result_head, '.');
+                addNext(result_head, temp_result + '0');
+
+                if (NUM1->data != ' ') {
+                    removeNext(NUM1);
+                }
+                if (NUM2->data != ' ') {
+                    removeNext(NUM2);
+                }
+            } else{
+                int num1 = 0, num2 = 0;
+                if (NUM1->data != ' ') {
+                    num1 = NUM1->data - '0';
+                }
+                if (NUM2->data != ' ') {
+                    num2 = NUM2->data - '0';
+                }
+                int temp_result = num1 - num2 + subtract_next;
+                if (temp_result < 0) { //윗 자리에서 10 빌려온다.
+                    subtract_next = -1;
+                    temp_result = 10 + temp_result;
+                } else {
+                    subtract_next = 0;
+                }
+                printf("result_head added.\n");
+                addNext(result_head, temp_result + '0');
+
+                if (NUM1->data != ' ') {
+                    removeNext(NUM1);
+                }
+                if (NUM2->data != ' ') {
+                    removeNext(NUM2);
+                }
             }
         }
         return result_head;
@@ -681,31 +712,60 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
             }
         }
         while ((NUM2->data != ' ') || (NUM1->data != ' ')) {
-            int num2 = 0, num1 = 0;
-            if (NUM2->data != ' ') {
-                num2 = NUM2->data - '0';
-            }
-            if (NUM1->data != ' ') {
-                num1 = NUM1->data - '0';
-            }
-
-            int temp_result = num2 - num1 + subtract_next;
-            if (temp_result < 0) { //윗 자리에서 10 빌려온다.
-                subtract_next = -1;
-                temp_result = 10 + temp_result;
-            } else {
-                subtract_next = 0;
-            }
-            printf("result_head added.\n");
-            addNext(result_head, temp_result + '0');
-            
-            if (NUM2->data != ' ') {
+            if ((NUM2->data == '.')&&(NUM1->data == '.')){
                 removeNext(NUM2);
-            }
-            if (NUM1->data != ' ') {
                 removeNext(NUM1);
+                int num2 = 0, num1 = 0;
+                if (NUM2->data != ' ') {
+                    num2 = NUM2->data - '0';
+                }
+                if (NUM2->data != ' ') {
+                    num1 = NUM1->data - '0';
+                }
+                int temp_result = num2 - num1 + subtract_next;
+                if (temp_result < 0) { //윗 자리에서 10 빌려온다.
+                    subtract_next = -1;
+                    temp_result = 10 + temp_result;
+                } else {
+                    subtract_next = 0;
+                }
+                printf("result_head added.\n");
+                addNext(result_head, '.');
+                addNext(result_head, temp_result + '0');
+
+                if (NUM1->data != ' ') {
+                    removeNext(NUM2);
+                }
+                if (NUM2->data != ' ') {
+                    removeNext(NUM1);
+                }
+            } else{
+                int num2 = 0, num1 = 0;
+                if (NUM2->data != ' ') {
+                    num2 = NUM2->data - '0';
+                }
+                if (NUM1->data != ' ') {
+                    num1 = NUM1->data - '0';
+                }
+                int temp_result = num2 - num1 + subtract_next;
+                if (temp_result < 0) { //윗 자리에서 10 빌려온다.
+                    subtract_next = -1;
+                    temp_result = 10 + temp_result;
+                } else {
+                    subtract_next = 0;
+                }
+                printf("result_head added.\n");
+                addNext(result_head, temp_result + '0');
+
+                if (NUM2->data != ' ') {
+                    removeNext(NUM1);
+                }
+                if (NUM1->data != ' ') {
+                    removeNext(NUM2);
+                }
             }
         }
+        addNext(result_head,'-'); //순서를 바꿨으니 '-' 붙여준다.
         return result_head;
     }
 }
