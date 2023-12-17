@@ -46,11 +46,15 @@ int main(void) {
     printf("reversed_infix_head generated.\n");
     struct NODE *infix_head = reverseDataOrder(reversed_infix_head); //reversed_infix_head는 메모리 반납됨.
     printf("infix_head generated.\n");
+
+    printLinkedList(infix_head);
     
     struct NODE *reversed_postfix_head = infix_to_postfix(infix_head); //reversed_postfix_head는 식의 마지막 문자부터 가리키는 상태임. infix_head는 메모리 반납됨.
     printf("reversed_postfix_head generated.\n");
     struct NODE *postfix_head = reverseDataOrder(reversed_postfix_head); //reversed_postfix_head는 메모리 반납됨.
     printf("postfix_head generated.\n");
+
+    printLinkedList(postfix_head);
     
     //이 주석 아래 부분만 해결하면 됨.
     
@@ -266,7 +270,11 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
                 addNext(temp_head, removeNext(infix));
             }
             else{
+                while(temp_head->data==' '&&temp_head->next!=NULL){
+                    removeNext(temp_head);
+                }
                 addNext(postfix_head, removeNext(temp_head));
+                addNext(postfix_head,' ');
                 addNext(temp_head, removeNext(infix));
             }
             signal=2;
@@ -278,7 +286,11 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
                 addNext(temp_head, removeNext(infix));
             }
             else{
+                while(temp_head->data==' '&&temp_head->next!=NULL){
+                    removeNext(temp_head);
+                }
                 addNext(postfix_head, removeNext(temp_head));
+                addNext(postfix_head,' ');
                 addNext(temp_head, removeNext(infix));
             }
             signal=1;
@@ -362,7 +374,7 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
             removeNext(postfix);
             printf("addition ready.\n");
             struct NODE *addition_result = Addition(temp1_head, temp2_head);
-            //return addition_result;
+            
             freeLinkedList(&temp1_head);
             freeLinkedList(&temp2_head);
 
