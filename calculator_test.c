@@ -531,6 +531,52 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어옴.
     //소수 간의 계산 처리해야 함.
 
+    struct NODE *n1 = copyLinkedList(NUM1);
+    struct NODE *n2 = copyLinkedList(NUM2);
+    int dot_cnt_num1=0;
+    int dot_cnt_num2=0;
+
+    int cnt1=0;
+    while((n1->next!=NULL) || (n1->data!=' ')){
+        ++cnt1;
+        if(n1->data=='.'){
+            dot_cnt_num1=cnt1;
+        }
+        removeNext(n1);
+    }
+    int cnt2=0;
+    while((n2->next!=NULL) || (n2->data!=' ')){
+        ++cnt2;
+        if(n2->data=='.'){
+            dot_cnt_num2=cnt2;
+        }
+        removeNext(n2);
+    }
+    freeLinkedList(&n1);
+    freeLinkedList(&n2);
+
+    if((dot_cnt_num1!=0) || (dot_cnt_num2!=0)){
+        if(dot_cnt_num1>dot_cnt_num2){
+            int length = dot_cnt_num1-dot_cnt_num2;
+            if (dot_cnt_num2==0){
+                addNext(NUM2, '.');
+            }
+            while(length>0){
+                addNext(NUM2, '0');
+                --length;
+            }
+        } else if(dot_cnt_num1<dot_cnt_num2){
+            int length = dot_cnt_num2-dot_cnt_num1;
+            if (dot_cnt_num1==0){
+                addNext(NUM1, '.');
+            }
+            while(length>0){
+                addNext(NUM1, '0');
+                --length;
+            }
+        }
+    }
+
     struct NODE *search1_node = copyLinkedList(NUM1);
     struct NODE *search2_node = copyLinkedList(NUM2);
     //printLinkedList(search1_node); 
@@ -567,8 +613,6 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
         freeLinkedList(&search1_node);
         freeLinkedList(&search2_node);
     }
-    printLinkedList(NUM1);
-    printLinkedList(NUM2);
     
     while(NUM1->data==' '){
         removeNext(NUM1);
@@ -576,8 +620,7 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
     while(NUM2->data==' '){
         removeNext(NUM2);
     }
-    printLinkedList(NUM1);
-    printLinkedList(NUM2);
+
     if ((num1_cnt > num2_cnt) || ((!change_calculation_order)&&(num1_cnt==num2_cnt))) { // 자리 안 바꾸는 경우 || (!change_calculation_order)
         printf("calculation_order not changed\n");
         int signal = 0;
@@ -586,44 +629,38 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
         result_head->next = NULL;
         result_head->data = ' ';
 
+        while((NUM1->data == ' ') || (NUM2->data == ' ')){
+            if (NUM1->data == ' ') {
+                removeNext(NUM1);
+            }
+            if (NUM2->data == ' ') {
+                removeNext(NUM2);
+            }
+        }
         while ((NUM1->data != ' ') || (NUM2->data != ' ')) {
-            //printLinkedList(NUM1);
-            //printLinkedList(NUM2);
-            if (signal == 0) {
-                if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
-                    signal = 1;
-                } else {
-                    if (NUM1->data == ' ') {
-                        removeNext(NUM1);
-                    }
-                    if (NUM2->data == ' ') {
-                        removeNext(NUM2);
-                    }
-                }
-            } else if (signal == 1) {
-                int num1 = 0, num2 = 0;
-                if (NUM1->data != ' ') {
-                    num1 = NUM1->data - '0';
-                }
-                if (NUM2->data != ' ') {
-                    num2 = NUM2->data - '0';
-                }
+            int num1 = 0, num2 = 0;
+            if (NUM1->data != ' ') {
+                num1 = NUM1->data - '0';
+            }
+            if (NUM2->data != ' ') {
+                num2 = NUM2->data - '0';
+            }
 
-                int temp_result = num1 - num2 + subtract_next;
-                if (temp_result < 0) {
-                    subtract_next = -1;
-                    temp_result = 10 + temp_result;
-                } else {
-                    subtract_next = 0;
-                }
-                printf("result_head added.\n");
-                addNext(result_head, temp_result + '0');
-                if (NUM1->data != ' ') {
-                    removeNext(NUM1);
-                }
-                if (NUM2->data != ' ') {
-                    removeNext(NUM2);
-                }
+            int temp_result = num1 - num2 + subtract_next;
+            if (temp_result < 0) { //윗 자리에서 10 빌려온다.
+                subtract_next = -1;
+                temp_result = 10 + temp_result;
+            } else {
+                subtract_next = 0;
+            }
+            printf("result_head added.\n");
+            addNext(result_head, temp_result + '0');
+
+            if (NUM1->data != ' ') {
+                removeNext(NUM1);
+            }
+            if (NUM2->data != ' ') {
+                removeNext(NUM2);
             }
         }
         return result_head;
@@ -635,50 +672,40 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
         result_head->next = NULL;
         result_head->data = ' ';
 
-        printLinkedList(NUM1);
-        printLinkedList(NUM2);
-        
-        while ((NUM2->data != ' ') || (NUM1->data != ' ')) {
-            printf("while entered");
-            if (signal == 0) {
-                if ((NUM2->data != ' ') && (NUM1->data != ' ')) {
-                    signal = 1;
-                } else {
-                    if (NUM2->data == ' ') {
-                        removeNext(NUM2);
-                    }
-                    if (NUM1->data == ' ') {
-                        removeNext(NUM1);
-                    }
-                }
-            } else if (signal == 1) {
-                int num2 = 0, num1 = 0;
-                if (NUM2->data != ' ') {
-                    num2 = NUM2->data - '0';
-                }
-                if (NUM1->data != ' ') {
-                    num1 = NUM1->data - '0';
-                }
-
-                int temp_result = num2 - num1 + subtract_next;
-                if (temp_result < 0) {
-                    subtract_next = -1;
-                    temp_result = 10 + temp_result;
-                } else {
-                    subtract_next = 0;
-                }
-                printf("result_head added.\n");
-                addNext(result_head, temp_result + '0');
-                if (NUM2->data != ' ') {
-                    removeNext(NUM2);
-                }
-                if (NUM1->data != ' ') {
-                    removeNext(NUM1);
-                }
+        while((NUM2->data == ' ') || (NUM1->data == ' ')){
+            if (NUM2->data == ' ') {
+                removeNext(NUM2);
+            }
+            if (NUM1->data == ' ') {
+                removeNext(NUM1);
             }
         }
-        addNext(result_head,'-');
-        printLinkedList(result_head);
+        while ((NUM2->data != ' ') || (NUM1->data != ' ')) {
+            int num2 = 0, num1 = 0;
+            if (NUM2->data != ' ') {
+                num2 = NUM2->data - '0';
+            }
+            if (NUM1->data != ' ') {
+                num1 = NUM1->data - '0';
+            }
+
+            int temp_result = num2 - num1 + subtract_next;
+            if (temp_result < 0) { //윗 자리에서 10 빌려온다.
+                subtract_next = -1;
+                temp_result = 10 + temp_result;
+            } else {
+                subtract_next = 0;
+            }
+            printf("result_head added.\n");
+            addNext(result_head, temp_result + '0');
+            
+            if (NUM2->data != ' ') {
+                removeNext(NUM2);
+            }
+            if (NUM1->data != ' ') {
+                removeNext(NUM1);
+            }
+        }
         return result_head;
     }
 }
