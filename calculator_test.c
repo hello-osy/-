@@ -168,18 +168,12 @@ char *readFile(void) {
     printf("파일 읽기 종료");
     *(function + i) = '\0'; // 파일 마지막에 \0 추가
 
-    char func[size+3];
-
     char *final_func = malloc(size);
     int n = 0, j = 0;
     while (n < size) {
-        char n1 = func[n];
-        char n2 = func[n+1];
-        if (func[n] == ')' && func[n+1] == '(') {
+        if (function[n] == ')' && function[n+1] == '(') {
             final_func[n+j++] = ')';
-            final_func[n+j++] = '*';
-            final_func[n+j] = '(';
-            n += 2;
+            final_func[n+j] = '*';
         } else {
             final_func[n+j] = *(function + n);
         }
