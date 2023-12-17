@@ -201,7 +201,8 @@ struct NODE *input_to_list(void) {
     input_head->next = NULL;
     input_head->data = ' ';
 
-    FILE *file = fopen("normalfile.txt", "r");
+    char *fp = readFile();
+    FILE *file = fopen(fp, "r");
 
     char expression_char;
     while ((expression_char = fgetc(file)) != EOF) {
