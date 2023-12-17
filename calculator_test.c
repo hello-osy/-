@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct NODE {
     struct NODE *next;
@@ -28,6 +29,7 @@ char removeNext(struct NODE *target) {
     return data;
 }
 
+char *readFile(void);
 struct NODE *input_to_list(void);
 struct NODE *infix_to_postfix(struct NODE *infix);
 struct NODE *calculate_postfix(struct NODE *postfix);
@@ -67,16 +69,140 @@ int main(void) {
     
 }
 
+char *readFile(void) {
+    FILE *file = fopen("math_expression.txt","r");
+    if (file == NULL) {
+        printf("Error: 파일을 열 수 없습니다.\n");
+        exit(0);
+    }
+
+    char chr;
+    char *function = NULL;
+    int size = 1;
+    
+    while ((chr = fgetc(file)) != EOF) {
+        size++;
+    }
+
+    function = malloc(size);
+
+    rewind(file); // 파일을 처음부터 다시 읽음
+    
+    int chr_asci;
+    int isnum = 0; // 들어온 chr 값(숫자면 0, 사칙연산 1, 여는 괄호 2, 닫는 괄호 3, 소수점 4)
+    int is_open = 0, i = 0, dot = 0;
+    
+    while((chr = fgetc(file)) != EOF) {
+        chr_asci = chr - '0';
+        if (chr_asci < 0) { // chr가 숫자가 아닐 때
+            if (chr_asci == -8) { // 여는 괄호일 때
+                is_open++;
+                isnum = 2;
+            }
+            else if (chr_asci == -7) { // 닫는 괄호일 때
+                if (is_open != 1) { // 괄호가 열리지 않았거나 괄호가 다 닫히지 않았을 때
+                    printf("Error: 괄호의 개수가 올바르지 않습니다.");
+                    free(function);
+                    exit(1);
+                }
+                else if (isnum == 1) { // 연산자 다음 바로 괄호가 나왔을 때
+                    printf("Error: 연산자 뒤에 바로 괄호를 닫을 수 없습니다.");
+                    free(function);
+                    exit(1);
+                }
+                else { // 여는 괄호 뒤에 나왔을 때
+                    is_open--;
+                    isnum = 3;
+                    dot--;
+                }
+            }
+            else if (chr_asci == -2) { // 소수점일 때
+                if (isnum != 0) {
+                    printf("Error: 소수점의 위치가 올바르지 않습니다.");
+                    free(function);
+                    exit(1);
+                }
+                else { 
+                    if (dot >1) { // 숫자 하나에 소수점이 두 개 이상일 때
+                        printf("Error: 피연산자에 소수점이 2개 이상일 수 없습니다.");
+                        free(function);
+                        exit(1);
+                    }
+                    else {
+                        isnum = 4;
+                        dot++;
+                    }
+                }
+            }
+            else if (chr_asci > -9) { // 사칙연산일 때
+                if (isnum != 1 && isnum != 4) {
+                    isnum = 1;
+                    dot--;
+                }
+                else {
+                    printf("Error: 연산자가 연달아 나올 수 없습니다.");
+                    free(function);
+                    exit(1);
+                }
+            }
+            else {} // 공백 등 연산자 제외 패스
+        }
+        else {
+            isnum = 0;
+        }
+        *(function + i) = chr;
+        i++;
+    }
+
+    if (isnum == 1) { // 연산자로 끝나는 경우
+        printf("Error: 식이 완전하지 않습니다.");
+        free(function);
+        exit(1);
+    }
+    else if (is_open != 0) { // 괄호가 닫히지 않은 채 식이 끝난 경우
+        printf("Error: 괄호가 닫하지 않았습니다.");
+        free(function);
+        exit(1);
+    }
+    fclose(file);
+    printf("파일 읽기 종료");
+    *(function + i) = '\0'; // 파일 마지막에 \0 추가
+
+    char func[size+3];
+
+    char *final_func = malloc(size);
+    int n = 0, j = 0;
+    while (n < size) {
+        char n1 = func[n];
+        char n2 = func[n+1];
+        if (func[n] == ')' && func[n+1] == '(') {
+            final_func[n+j++] = ')';
+            final_func[n+j++] = '*';
+            final_func[n+j] = '(';
+            n += 2;
+        } else {
+            final_func[n+j] = *(function + n);
+        }
+        n++;
+    }
+
+    // 정상작동 파일 작성
+    FILE *f = fopen("normalfile.txt","w");
+    fprintf(f, "%s", final_func);
+    free(function);
+    free(final_func);
+    fclose(f);
+    printf("파일 작성 완료");
+    return "normalfile.txt";
+}
+
 struct NODE *input_to_list(void) {
     struct NODE *input_head = malloc(sizeof(struct NODE));
     input_head->next = NULL;
     input_head->data = ' ';
 
-    FILE *file = fopen("math_expression.txt", "r");
-    if (file == NULL) {
-        printf("파일을 열 수 없습니다.\n");
-        return NULL;
-    }
+    char *fp = readFile();
+    FILE *file = fopen(fp, "r");
 
     char expression_char;
     while ((expression_char = fgetc(file)) != EOF) {
@@ -283,7 +409,38 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
     struct NODE *result_head = malloc(sizeof(struct NODE));
     result_head->next=NULL;
     result_head->data = ' ';
-
+    
+    struct NODE *n1 = copyLinkedList(NUM1);
+    struct NODE *n2 = copyLinkedList(NUM2);
+    int cnt_num1=0;
+    int cnt_num2=0;
+    while(n1->data!='.'){
+        ++cnt_num1;
+        n1=n1->next;
+    }
+    while(n2->data!='.'){
+        ++cnt_num2;
+        n2=n2->next;
+    }
+    freeLinkedList(&n1);
+    freeLinkedList(&n2);
+    if(cnt_num1!=cnt_num2){
+        int length=0;
+        if(cnt_num1>cnt_num2){
+            length = cnt_num1-cnt_num2;
+            while(length>0){
+                addNext(NUM2, '0');
+                --length;
+            }
+        }
+        else if (cnt_num1<cnt_num2){
+            length = cnt_num2-cnt_num1;
+            while(length>0){
+                addNext(NUM1, '0');
+                --length;
+            }
+        }
+    }
     int signal=0;
     while(true){
         if (signal==0){
@@ -301,24 +458,39 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
         }
         else if (signal == 1) {
             int num1 = 0, num2 = 0;
-            if ((NUM1->data == ' ') && (NUM2->data == ' ')) {
-                return result_head;
-            } else if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
+            if ((NUM1->data == '.') && (NUM2->data == '.')) {
+                removeNext(NUM1);
+                removeNext(NUM2);
                 num1 = NUM1->data - '0';
                 num2 = NUM2->data - '0';
-            } else if ((NUM1->data == ' ') && (NUM2->data != ' ')) {
-                num2 = NUM2->data - '0';
-            } else if ((NUM1->data != ' ') && (NUM2->data == ' ')) {
-                num1 = NUM1->data - '0';
-            }
+                int temp_result=num1 + num2 + over_ten_num;
+                over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
+                int result = temp_result%10;
+                removeNext(NUM1);
+                removeNext(NUM2);
+                char result_char = result+ '0';
+                addNext(result_head, '.');
+                addNext(result_head, result_char);
+            }else{
+                if ((NUM1->data == ' ') && (NUM2->data == ' ')) {
+                    return result_head;
+                } else if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
+                    num1 = NUM1->data - '0';
+                    num2 = NUM2->data - '0';
+                } else if ((NUM1->data == ' ') && (NUM2->data != ' ')) {
+                    num2 = NUM2->data - '0';
+                } else if ((NUM1->data != ' ') && (NUM2->data == ' ')) {
+                    num1 = NUM1->data - '0';
+                }
 
-            int temp_result=num1 + num2 + over_ten_num;
-            over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
-            int result = temp_result%10;
-            removeNext(NUM1);
-            removeNext(NUM2);
-            char result_char = result+ '0';
-            addNext(result_head, result_char);
+                int temp_result=num1 + num2 + over_ten_num;
+                over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
+                int result = temp_result%10;
+                removeNext(NUM1);
+                removeNext(NUM2);
+                char result_char = result+ '0';
+                addNext(result_head, result_char);
+            }
         }
     }
 }
