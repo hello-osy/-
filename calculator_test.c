@@ -142,14 +142,7 @@ char *readFile(void) {
                     isnum = 1;
                     dot--;
                 }
-                else if (isdiv) {
-                    if (chr_asci == 0) {
-                        printf("Error: 0으로 나눌 수 없습니다.");
-                    }
-                    else {
-                        printf("Error: 나눗셈이 구현되지 않았습니다.");
-                    }
-                }
+                
                 else {
                     printf("Error: 연산자가 연달아 나올 수 없습니다.");
                     free(function);
@@ -158,7 +151,19 @@ char *readFile(void) {
             }
             else {} // 공백 등 연산자 제외 패스
         }
-        else {
+        else { // 숫자가 나온 경우
+            if (isdiv) { // 나눗셈인 경우
+                if (chr_asci == 0) { // 0으로 나누려 하는 경우
+                    printf("Error: 0으로 나눌 수 없습니다.");
+                    free(function);
+                    exit(1);
+                }
+                else {
+                    printf("Error: 나눗셈이 구현되지 않았습니다.");
+                    free(function);
+                    exit(1);
+                }
+            }
             isnum = 0;
         }
         *(function + i) = chr;
