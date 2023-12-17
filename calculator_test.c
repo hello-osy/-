@@ -47,6 +47,7 @@ int main(void) {
     struct NODE *infix_head = reverseDataOrder(reversed_infix_head); //reversed_infix_head는 메모리 반납됨.
     printf("infix_head generated.\n");
 
+    printf("infix_head : ");
     printLinkedList(infix_head);
     
     struct NODE *reversed_postfix_head = infix_to_postfix(infix_head); //reversed_postfix_head는 식의 마지막 문자부터 가리키는 상태임. infix_head는 메모리 반납됨.
@@ -54,6 +55,7 @@ int main(void) {
     struct NODE *postfix_head = reverseDataOrder(reversed_postfix_head); //reversed_postfix_head는 메모리 반납됨.
     printf("postfix_head generated.\n");
 
+    printf("postfix_head : ");
     printLinkedList(postfix_head);
     
     //이 주석 아래 부분만 해결하면 됨.
@@ -62,6 +64,7 @@ int main(void) {
     printf("result_head generated.\n");
     
     //결과 프린트해보기
+    printf("result_head : ");
     while(result_head!=NULL){
         char print_char = result_head->data;
         printf("%c", print_char);
@@ -414,9 +417,8 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
             removeNext(postfix);
         }
 
-        result = temp1_head; //이게 문제일 수도?
-
         if(postfix->next==NULL && postfix->data==' '){
+            result = temp1_head; //이게 문제일 수도?
             break;
         }
     }
@@ -427,98 +429,101 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
 
 struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어와서 괜찮음 이대로 해도 됨.
-    int over_ten_num=0;
     struct NODE *result_head = malloc(sizeof(struct NODE));
     result_head->next=NULL;
     result_head->data = ' ';
     
     struct NODE *n1 = copyLinkedList(NUM1);
     struct NODE *n2 = copyLinkedList(NUM2);
-    int cnt_num1=0;
-    int cnt_num2=0;
-    while(true){
-        ++cnt_num1;
+    int dot_cnt_num1=0;
+    int dot_cnt_num2=0;
+
+    int cnt1=0;
+    while((n1->next!=NULL) || (n1->data!=' ')){
+        ++cnt1;
+        if(n1->data=='.'){
+            dot_cnt_num1=cnt1;
+        }
         removeNext(n1);
-        if ((n1->data=='.') || ((n1->data=' ')&&(n1->next==NULL))){
-            break;
-        }
     }
-    while(true){
-        ++cnt_num2;
-        removeNext(n2);
-        if ((n2->data=='.') || ((n2->data=' ')&&(n2->next==NULL))){
-            break;
+    int cnt2=0;
+    while((n2->next!=NULL) || (n2->data!=' ')){
+        ++cnt2;
+        if(n2->data=='.'){
+            dot_cnt_num2=cnt2;
         }
+        removeNext(n2);
     }
     freeLinkedList(&n1);
     freeLinkedList(&n2);
-    if(cnt_num1!=cnt_num2){
-        int length=0;
-        if(cnt_num1>cnt_num2){
-            length = cnt_num1-cnt_num2;
+
+    if((dot_cnt_num1!=0) || (dot_cnt_num2!=0)){
+        if(dot_cnt_num1>dot_cnt_num2){
+            int length = dot_cnt_num1-dot_cnt_num2;
+            if (dot_cnt_num2==0){
+                addNext(NUM2, '.');
+            }
             while(length>0){
                 addNext(NUM2, '0');
                 --length;
             }
-        }
-        else if (cnt_num1<cnt_num2){
-            length = cnt_num2-cnt_num1;
+        } else if(dot_cnt_num1<dot_cnt_num2){
+            int length = dot_cnt_num2-dot_cnt_num1;
+            if (dot_cnt_num1==0){
+                addNext(NUM1, '.');
+            }
             while(length>0){
                 addNext(NUM1, '0');
                 --length;
             }
         }
     }
-    int signal=0;
-    while(true){
-        if (signal==0){
-            if ((NUM1 ->data != ' ') && (NUM2 ->data != ' ')){
-                signal=1;
-            }else{
-                if (NUM1 ->data == ' '){
-                    removeNext(NUM1);
-                }
-                if (NUM2 ->data == ' '){
-                    removeNext(NUM2);
-                }
-            }
-            printf("addition entered.\n");
+
+    while((NUM1 ->data == ' ') || (NUM2 ->data == ' ')){
+        if (NUM1 ->data == ' '){
+            removeNext(NUM1);
         }
-        else if (signal == 1) {
-            int num1 = 0, num2 = 0;
-            if ((NUM1->data == '.') && (NUM2->data == '.')) {
-                removeNext(NUM1);
-                removeNext(NUM2);
+        if (NUM2 ->data == ' '){
+            removeNext(NUM2);
+        }
+    }
+
+    int over_ten_num=0;
+    while(true){
+        printf("addition entered.\n");
+        int num1 = 0, num2 = 0;
+        if ((NUM1->data == '.') && (NUM2->data == '.')) {
+            removeNext(NUM1);
+            removeNext(NUM2);
+            num1 = NUM1->data - '0';
+            num2 = NUM2->data - '0';
+            int temp_result=num1 + num2 + over_ten_num;
+            over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
+            int result = temp_result%10;
+            removeNext(NUM1);
+            removeNext(NUM2);
+            char result_char = result+ '0';
+            addNext(result_head, '.');
+            addNext(result_head, result_char);
+        }else{
+            if ((NUM1->data == ' ') && (NUM2->data == ' ')) {
+                return result_head;
+            } else if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
                 num1 = NUM1->data - '0';
                 num2 = NUM2->data - '0';
-                int temp_result=num1 + num2 + over_ten_num;
-                over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
-                int result = temp_result%10;
-                removeNext(NUM1);
-                removeNext(NUM2);
-                char result_char = result+ '0';
-                addNext(result_head, '.');
-                addNext(result_head, result_char);
-            }else{
-                if ((NUM1->data == ' ') && (NUM2->data == ' ')) {
-                    return result_head;
-                } else if ((NUM1->data != ' ') && (NUM2->data != ' ')) {
-                    num1 = NUM1->data - '0';
-                    num2 = NUM2->data - '0';
-                } else if ((NUM1->data == ' ') && (NUM2->data != ' ')) {
-                    num2 = NUM2->data - '0';
-                } else if ((NUM1->data != ' ') && (NUM2->data == ' ')) {
-                    num1 = NUM1->data - '0';
-                }
-
-                int temp_result=num1 + num2 + over_ten_num;
-                over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
-                int result = temp_result%10;
-                removeNext(NUM1);
-                removeNext(NUM2);
-                char result_char = result+ '0';
-                addNext(result_head, result_char);
+            } else if ((NUM1->data == ' ') && (NUM2->data != ' ')) {
+                num2 = NUM2->data - '0';
+            } else if ((NUM1->data != ' ') && (NUM2->data == ' ')) {
+                num1 = NUM1->data - '0';
             }
+
+            int temp_result=num1 + num2 + over_ten_num;
+            over_ten_num = temp_result/10; //over_ten_num 이게 if문 밖에서도 바뀐 값이 유지되려나?
+            int result = temp_result%10;
+            removeNext(NUM1);
+            removeNext(NUM2);
+            char result_char = result+ '0';
+            addNext(result_head, result_char);
         }
     }
 }
