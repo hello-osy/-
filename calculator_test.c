@@ -533,7 +533,7 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
 struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어옴.
     //소수 간의 계산 처리해야 함.
-    /*
+    
     struct NODE *n1 = copyLinkedList(NUM1);
     struct NODE *n2 = copyLinkedList(NUM2);
     int dot_cnt_num1=0;
@@ -579,7 +579,7 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
             }
         }
     }
-    */
+    
     struct NODE *search1_node = copyLinkedList(NUM1);
     struct NODE *search2_node = copyLinkedList(NUM2);
     //printLinkedList(search1_node); 
