@@ -438,24 +438,30 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
     
     struct NODE *n1 = copyLinkedList(NUM1);
     struct NODE *n2 = copyLinkedList(NUM2);
-    int dot_cnt_num1=0;
-    int dot_cnt_num2=0;
+    while(n1->data==' '){
+        removeNext(n1);
+    }
+    while(n2->data==' '){
+        removeNext(n2);
+    }
 
     int cnt1=0;
-    while((n1->next!=NULL) || (n1->data!=' ')){
-        ++cnt1;
+    int dot_cnt_num1=0;
+    while(n1->data!=' '){
         if(n1->data=='.'){
             dot_cnt_num1=cnt1;
         }
         removeNext(n1);
+        ++cnt1;
     }
     int cnt2=0;
-    while((n2->next!=NULL) || (n2->data!=' ')){
-        ++cnt2;
+    int dot_cnt_num2=0;
+    while(n2->data!=' '){
         if(n2->data=='.'){
             dot_cnt_num2=cnt2;
         }
         removeNext(n2);
+        ++cnt2;
     }
     freeLinkedList(&n1);
     freeLinkedList(&n2);
@@ -536,24 +542,30 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
     
     struct NODE *n1 = copyLinkedList(NUM1);
     struct NODE *n2 = copyLinkedList(NUM2);
-    int dot_cnt_num1=0;
-    int dot_cnt_num2=0;
+    while(n1->data==' '){
+        removeNext(n1);
+    }
+    while(n2->data==' '){
+        removeNext(n2);
+    }
 
     int cnt1=0;
-    while((n1->next!=NULL) || (n1->data!=' ')){
-        ++cnt1;
+    int dot_cnt_num1=0;
+    while(n1->data!=' '){
         if(n1->data=='.'){
             dot_cnt_num1=cnt1;
         }
         removeNext(n1);
+        ++cnt1;
     }
     int cnt2=0;
-    while((n2->next!=NULL) || (n2->data!=' ')){
-        ++cnt2;
+    int dot_cnt_num2=0;
+    while(n2->data!=' '){
         if(n2->data=='.'){
             dot_cnt_num2=cnt2;
         }
         removeNext(n2);
+        ++cnt2;
     }
     freeLinkedList(&n1);
     freeLinkedList(&n2);
@@ -580,6 +592,8 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
         }
     }
     
+    printLinkedList(NUM1);
+    printLinkedList(NUM2);
     struct NODE *search1_node = copyLinkedList(NUM1);
     struct NODE *search2_node = copyLinkedList(NUM2);
     //printLinkedList(search1_node); 
@@ -776,70 +790,62 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
     result_head->next=NULL;
     result_head->data = ' '; 
 
-    int signal=0;
     int count=0;
-    while(true){ //나는 곱셈을 여러 조각으로 나누어서 더하려고 한다.
-        if (signal == 0){
-            if ((NUM1 ->data != ' ') && (NUM2 ->data != ' ')){
-                signal=1;
-            }else{
-                if (NUM1 ->data == ' '){
-                    removeNext(NUM1);
-                }
-                if (NUM2 ->data == ' '){
-                    removeNext(NUM2);
-                }
+    while((NUM1->data==' ') || (NUM2->data==' ')){
+            if (NUM1 ->data == ' '){
+                removeNext(NUM1);
             }
-            //printf("multiplication entered.\n");
+            if (NUM2 ->data == ' '){
+                removeNext(NUM2);
+            }
         }
-        else if (signal == 1) {
-            printf("multiplication entered.\n");
-            struct NODE *num2_search = copyLinkedList(NUM2); //num2_search는 NUM2와 항상 같아야 함.
-            struct NODE *temp_result = malloc(sizeof(struct NODE)); //temp_result 초기화 됨.
-            temp_result->next=NULL;
-            temp_result->data = ' ';
+    while(true){ //나는 곱셈을 여러 조각으로 나누어서 더하려고 한다.
+        printf("multiplication entered.\n");
+        struct NODE *num2_search = copyLinkedList(NUM2); //num2_search는 NUM2와 항상 같아야 함.
+        struct NODE *temp_result = malloc(sizeof(struct NODE)); //temp_result 초기화 됨.
+        temp_result->next=NULL;
+        temp_result->data = ' ';
 
-            for (int i=0;i<count;i++){
-                addNext(temp_result,'0'); //multiply_num의 자릿수가 올라간 만큼을 temp_result에 반영하기 위한 것임.
+        for (int i=0;i<count;i++){
+            addNext(temp_result,'0'); //multiply_num의 자릿수가 올라간 만큼을 temp_result에 반영하기 위한 것임.
+        }
+        int over_ten_num=0;
+        int multiply1_num = (NUM1->data) - '0'; //num2에 곱할 num1의 가장 작은 자리수
+        while(true){
+            int multiply2_num = (num2_search->data) - '0';
+            int temp_frac_result = multiply1_num * multiply2_num + over_ten_num;
+            int frac_result= temp_frac_result%10;
+            over_ten_num = temp_frac_result/10;
+            addNext(temp_result, frac_result+'0'); //한 조각에 해당하는 연산 결과를 temp_result에 저장한다.
+            printf("multiply_fragment making...\n");
+            removeNext(num2_search);
+            if (num2_search->next==NULL && num2_search->data==' '){
+                freeLinkedList(&num2_search);
+                break;
             }
-            int over_ten_num=0;
-            int multiply1_num = (NUM1->data) - '0'; //num2에 곱할 num1의 가장 작은 자리수
-            while(true){
-                int multiply2_num = (num2_search->data) - '0';
-                int temp_frac_result = multiply1_num * multiply2_num + over_ten_num;
-                int frac_result= temp_frac_result%10;
-                over_ten_num = temp_frac_result/10;
-                addNext(temp_result, frac_result+'0'); //한 조각에 해당하는 연산 결과를 temp_result에 저장한다.
-                printf("multiply_fragment making...\n");
-                removeNext(num2_search);
-                if (num2_search->next==NULL && num2_search->data==' '){
-                    freeLinkedList(&num2_search);
-                    break;
-                }
-            }
-            if (over_ten_num!=0){
-                addNext(temp_result, over_ten_num+'0');
-            }
-            //printLinkedList(temp_result);
-            if (result_head->next==NULL){
-                result_head=temp_result;
-            }else{
-                struct NODE *temp1_head=reverseDataOrder(result_head);
-                struct NODE *temp2_head=reverseDataOrder(temp_result);
-                struct NODE *addition_result = Addition(temp1_head, temp2_head);//Addition에 들어가는 애들은 뒤집힌 상태여야 함.
-                //return addition_result;
-                freeLinkedList(&temp1_head);
-                freeLinkedList(&temp2_head);
-                result_head = addition_result;
-                //printLinkedList(result_head);
-                printf("multiply_fragment added to result_head\n"); //현재 상황을 볼 때, 한 번도 result_head가 업데이트 안 되는 것으로 보임.
-            }
+        }
+        if (over_ten_num!=0){
+            addNext(temp_result, over_ten_num+'0');
+        }
+        //printLinkedList(temp_result);
+        if (result_head->next==NULL){
+            result_head=temp_result;
+        }else{
+            struct NODE *temp1_head=reverseDataOrder(result_head);
+            struct NODE *temp2_head=reverseDataOrder(temp_result);
+            struct NODE *addition_result = Addition(temp1_head, temp2_head);//Addition에 들어가는 애들은 뒤집힌 상태여야 함.
+            //return addition_result;
+            freeLinkedList(&temp1_head);
+            freeLinkedList(&temp2_head);
+            result_head = addition_result;
+            //printLinkedList(result_head);
+            printf("multiply_fragment added to result_head\n"); //현재 상황을 볼 때, 한 번도 result_head가 업데이트 안 되는 것으로 보임.
+        }
 
-            removeNext(NUM1); //가장 작은 자리수 제거
-            ++count;
-            if(NUM1->next==NULL && NUM1->data==' '){
-                return result_head;
-            }
+        removeNext(NUM1); //가장 작은 자리수 제거
+        ++count;
+        if(NUM1->next==NULL && NUM1->data==' '){
+            return result_head;
         }
     }
 }
