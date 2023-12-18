@@ -425,8 +425,8 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
     freeLinkedList(&postfix);
     result=reverseDataOrder(result); //result는 마지막 temp1_head인데, temp_head는 뒤집힌 상태임. 원래 상태로 만들어준 것임.
     while((result->data==' ') || (result->data=='0')){
-            removeNext(result);
-        }
+        removeNext(result);
+    }
     return result;
 }
 
@@ -533,7 +533,7 @@ struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
 struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
     //들어올 때부터 NUM1,NUM2이 뒤집혀서 들어옴.
     //소수 간의 계산 처리해야 함.
-
+    /*
     struct NODE *n1 = copyLinkedList(NUM1);
     struct NODE *n2 = copyLinkedList(NUM2);
     int dot_cnt_num1=0;
@@ -579,25 +579,32 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
             }
         }
     }
-
+    */
     struct NODE *search1_node = copyLinkedList(NUM1);
     struct NODE *search2_node = copyLinkedList(NUM2);
     //printLinkedList(search1_node); 
     //printLinkedList(search2_node); //NUM1,NUM2 잘 들어옴.
     int num1_cnt=0; //연결리스트의 노드 개수를 세는 것임(수의 길이와 조금 차이가 있는 값임.)
     int num2_cnt=0;
-    while(search1_node!=NULL){
+    while(true){
         ++num1_cnt;
-        search1_node=search1_node->next;
+        removeNext(search1_node);
+        if (search1_node->next==NULL && search1_node->data==' '){
+            break;
+        }
     }
-    while(search2_node!=NULL){
+    while(true){
         ++num2_cnt;
-        search2_node=search2_node->next;
+        removeNext(search2_node);
+        if (search2_node->next==NULL && search2_node->data==' '){
+            break;
+        }
     }
     freeLinkedList(&search1_node);
     freeLinkedList(&search2_node);
     //printLinkedList(NUM1);
     //printLinkedList(NUM2);
+    
     bool change_calculation_order = false;
     if (num1_cnt==num2_cnt){
         struct NODE *search1_node = reverseDataOrder(copyLinkedList(NUM1));//copyLinkedList(reverseDataOrder(NUM1)); 하면 오류남. reverseDataOrder하면 넣은 값이 갈려버림.
@@ -605,12 +612,15 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
         while(search1_node->data==search2_node->data){
             removeNext(search1_node);
             removeNext(search2_node);
+            if (search1_node->next==NULL && search1_node->data==' '){
+                break;
+            }
         }
-        int num1=(search1_node->data)-'0';
-        int num2=(search2_node->data)-'0';
-        if(num1>num2){//큰 수가 앞에 있을 경우, 자리 안 바꿈
+        int n1=(search1_node->data)-'0';
+        int n2=(search2_node->data)-'0';
+        if(n1>n2){//큰 수가 앞에 있을 경우, 자리 안 바꿈
             change_calculation_order=false;
-        } else if(num1<num2){ //큰 수가 뒤에 있을 경우, 자리 바꿈
+        } else if(n1<n2){ //큰 수가 뒤에 있을 경우, 자리 바꿈
             change_calculation_order=true;
         }
         freeLinkedList(&search1_node);
@@ -626,21 +636,12 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
 
     if ((num1_cnt > num2_cnt) || ((!change_calculation_order)&&(num1_cnt==num2_cnt))) { // 자리 안 바꾸는 경우 || (!change_calculation_order)
         printf("calculation_order not changed\n");
-        int signal = 0;
         int subtract_next = 0;
         struct NODE *result_head = malloc(sizeof(struct NODE));
         result_head->next = NULL;
         result_head->data = ' ';
 
-        while((NUM1->data == ' ') || (NUM2->data == ' ')){
-            if (NUM1->data == ' ') {
-                removeNext(NUM1);
-            }
-            if (NUM2->data == ' ') {
-                removeNext(NUM2);
-            }
-        }
-        while ((NUM1->data != ' ') || (NUM2->data != ' ')) {
+        while (true) {
             if ((NUM1->data == '.')&&(NUM2->data == '.')){
                 removeNext(NUM1);
                 removeNext(NUM2);
@@ -658,7 +659,7 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
                 } else {
                     subtract_next = 0;
                 }
-                printf("result_head added.\n");
+                //printf("result_head added.\n");
                 addNext(result_head, '.');
                 addNext(result_head, temp_result + '0');
 
@@ -668,6 +669,8 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
                 if (NUM2->data != ' ') {
                     removeNext(NUM2);
                 }
+            } else if ((NUM1->data == ' ') && (NUM2->data == ' ')){
+                break;
             } else{
                 int num1 = 0, num2 = 0;
                 if (NUM1->data != ' ') {
@@ -683,7 +686,7 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
                 } else {
                     subtract_next = 0;
                 }
-                printf("result_head added.\n");
+                //printf("result_head added.\n");
                 addNext(result_head, temp_result + '0');
 
                 if (NUM1->data != ' ') {
@@ -697,21 +700,12 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
         return result_head;
     } else if ((num1_cnt < num2_cnt) || ((change_calculation_order)&&(num1_cnt==num2_cnt))) { // 자리 바꾸는 경우
         printf("calculation_order changed\n");
-        int signal = 0;
         int subtract_next = 0;
         struct NODE *result_head = malloc(sizeof(struct NODE));
         result_head->next = NULL;
         result_head->data = ' ';
 
-        while((NUM2->data == ' ') || (NUM1->data == ' ')){
-            if (NUM2->data == ' ') {
-                removeNext(NUM2);
-            }
-            if (NUM1->data == ' ') {
-                removeNext(NUM1);
-            }
-        }
-        while ((NUM2->data != ' ') || (NUM1->data != ' ')) {
+        while (true) {
             if ((NUM2->data == '.')&&(NUM1->data == '.')){
                 removeNext(NUM2);
                 removeNext(NUM1);
@@ -729,7 +723,7 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
                 } else {
                     subtract_next = 0;
                 }
-                printf("result_head added.\n");
+                //printf("result_head added.\n");
                 addNext(result_head, '.');
                 addNext(result_head, temp_result + '0');
 
@@ -739,6 +733,8 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
                 if (NUM2->data != ' ') {
                     removeNext(NUM1);
                 }
+            } else if((NUM2->data == ' ') && (NUM1->data == ' ')){
+                break;
             } else{
                 int num2 = 0, num1 = 0;
                 if (NUM2->data != ' ') {
@@ -754,17 +750,18 @@ struct NODE *Subtraction(struct NODE *NUM1, struct NODE *NUM2){
                 } else {
                     subtract_next = 0;
                 }
-                printf("result_head added.\n");
+                //printf("result_head added.\n");
                 addNext(result_head, temp_result + '0');
 
                 if (NUM2->data != ' ') {
-                    removeNext(NUM1);
+                    removeNext(NUM2);
                 }
                 if (NUM1->data != ' ') {
-                    removeNext(NUM2);
+                    removeNext(NUM1);
                 }
             }
         }
+        
         addNext(result_head,'-'); //순서를 바꿨으니 '-' 붙여준다.
         return result_head;
     }
