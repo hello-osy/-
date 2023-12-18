@@ -818,7 +818,7 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
     freeLinkedList(&n2);
     printf("dot_cnt_num1 : %d \ndot_cnt_num2 : %d\n",dot_cnt_num1,dot_cnt_num2);
 
-    //구현상의 편의를 위해, NUM1을 정수로 만들어주고, NUM2의 소수점 위치를 변경하자.
+    //구현상의 편의를 위해, NUM1,NUM2를 정수로 만들어줌.
     //NUM1을 정수로 만들어줌.('.'을 제거함)
 
     struct NODE *dot_search_node1 = malloc(sizeof(struct NODE));
@@ -837,59 +837,36 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
             originalCurrent1 = originalCurrent1->next;
         }
     }
-    //NUM2의 소수점 위치를 변경하자.
-    struct NODE *dot_search_node2_1 = malloc(sizeof(struct NODE));
-    dot_search_node2_1->data = NUM2->data;
-    dot_search_node2_1->next = NULL;
+    //NUM2를 정수로 만들어줌.('.'을 제거함)
+    struct NODE *dot_search_node2 = malloc(sizeof(struct NODE));
+    dot_search_node2->data = NUM2->data;
+    dot_search_node2->next = NULL;
 
-    struct NODE* originalCurrent2_1 = NUM2->next;
-    struct NODE* newCurrent2_1 = dot_search_node2_1;
+    struct NODE* originalCurrent2 = NUM2->next;
+    struct NODE* newCurrent2 = dot_search_node2;
 
-    while (originalCurrent2_1 != NULL) {
-        if (originalCurrent2_1->data!='.'){
-            addNext(newCurrent2_1, originalCurrent2_1->data);
-            originalCurrent2_1 = originalCurrent2_1->next;
-            newCurrent2_1 = newCurrent2_1->next;
+    while (originalCurrent2 != NULL) {
+        if (originalCurrent2->data!='.'){
+            addNext(newCurrent2, originalCurrent2->data);
+            originalCurrent2 = originalCurrent2->next;
+            newCurrent2 = newCurrent2->next;
         } else{
-            originalCurrent2_1 = originalCurrent2_1->next;
+            originalCurrent2 = originalCurrent2->next;
         }
     }
-    
-    dot_cnt_num2=dot_cnt_num1+dot_cnt_num2; //num1의 소수점 위치만큼 num2의 소수점위치가 변경되어야 함.(dot_cnt_num1은 소수점 아래에 몇 개의 숫자가 있는지 센 것임.)
 
-    struct NODE *dot_search_node2_2 = malloc(sizeof(struct NODE));
-    dot_search_node2_2->data = dot_search_node2_1->data;
-    dot_search_node2_2->next = NULL;
-
-    struct NODE* originalCurrent2_2 = dot_search_node2_1->next;
-    struct NODE* newCurrent2_2 = dot_search_node2_2;
-
-    int num_beforedot_cnt=0;
-    while (originalCurrent2_2 != NULL) {
-        if ((num_beforedot_cnt==dot_cnt_num2)&&(dot_cnt_num2!=0)){
-            addNext(newCurrent2_2, '.');
-            newCurrent2_2=newCurrent2_2->next;
-        } else{
-            addNext(newCurrent2_2, originalCurrent2_2->data);
-            originalCurrent2_2 = originalCurrent2_2->next;
-            newCurrent2_2 = newCurrent2_2->next;
-        }
-        num_beforedot_cnt++;
-    }
-    freeLinkedList(&dot_search_node2_1);
-
-    //위에서 NUM1을 정수로 만들어주고, NUM2의 소수점 위치를 변경한 상태임.
-    //NUM1이 dot_search_node1 /NUM2이 dot_search_node2_2로 변경된 것임.
+    //위에서 NUM1, NUM2을 정수로 만들어준 상황임. 일단 정수*정수로 처리한 후에, 나중에 소숫점을 찍어줄 것임/
+    //NUM1이 dot_search_node1 /NUM2이 dot_search_node2로 변경된 것임.
     printf("[dot position changed]\n");
     printLinkedList(dot_search_node1);
-    printLinkedList(dot_search_node2_2);
+    printLinkedList(dot_search_node2);
 
-    while((dot_search_node1->data==' ') || (dot_search_node2_2->data==' ')){
+    while((dot_search_node1->data==' ') || (dot_search_node2->data==' ')){
         if (dot_search_node1 ->data == ' '){
             removeNext(dot_search_node1);
         }
-        if (dot_search_node2_2 ->data == ' '){
-            removeNext(dot_search_node2_2);
+        if (dot_search_node2 ->data == ' '){
+            removeNext(dot_search_node2);
         }
     }
 
@@ -900,7 +877,7 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
     int count=0;
     while(true){ //나는 곱셈을 여러 조각으로 나누어서 더하려고 한다.
         printf("multiplication entered.\n");
-        struct NODE *num2_search = copyLinkedList(dot_search_node2_2); //num2_search는 dot_search_node2_2와 항상 같아야 함.
+        struct NODE *num2_search = copyLinkedList(dot_search_node2); //num2_search는 dot_search_node2와 항상 같아야 함.
         struct NODE *temp_result = malloc(sizeof(struct NODE)); //temp_result 초기화 됨.
         temp_result->next=NULL;
         temp_result->data = ' ';
@@ -951,7 +928,41 @@ struct NODE *Multiplication(struct NODE *NUM1, struct NODE *NUM2){
         removeNext(dot_search_node1); //가장 작은 자리수 제거
         ++count;
         if(dot_search_node1->next==NULL && dot_search_node1->data==' '){
-            return result_head;
+            //result_head에서는 정수*정수 연산은 정확함. 여기에서 소숫점을 찍으면 소수*소수 연산도 정확할 것임.
+            dot_cnt_num2=dot_cnt_num1+dot_cnt_num2; //num1의 소수점 위치만큼 num2의 소수점위치가 변경되어야 함.(dot_cnt_num1은 소수점 아래에 몇 개의 숫자가 있는지 센 것임.)
+            
+            if (dot_cnt_num2!=0){ //둘 중 하나 이상이 소수인 경우(소수점 찍어야 함.)
+                struct NODE *process1 = reverseDataOrder(result_head);
+                printLinkedList(process1);
+
+                struct NODE *dot_search_node3 = malloc(sizeof(struct NODE));
+                dot_search_node3->data = process1->data;
+                dot_search_node3->next = NULL;
+
+                struct NODE* originalCurrent3 = process1->next;
+                struct NODE* newCurrent3 = dot_search_node3;
+
+                int dot_position_cnt=0; //dot_position_cnt는 지금 놓으면 소수점 뒤에 몇개의 숫자가 있는지 보여주는 변수임.
+                while (originalCurrent3 != NULL) {
+                    if (dot_position_cnt==dot_cnt_num2){
+                        addNext(newCurrent3,'.');
+                        newCurrent3=newCurrent3->next;
+                    } else{
+                        addNext(newCurrent3, originalCurrent3->data);
+                        originalCurrent3 = originalCurrent3->next;
+                        newCurrent3 = newCurrent3->next;
+                    }
+                    ++dot_position_cnt;
+                }
+                freeLinkedList(&process1);
+
+                struct NODE *process2 = reverseDataOrder(dot_search_node3);
+                printLinkedList(process2);
+
+                return process2;
+            }else{ //둘 다 정수인 경우(소수점 찍는 과정이 없음.)
+                return result_head;
+            }
         }
     }
 }
@@ -1009,7 +1020,11 @@ struct NODE *copyLinkedList(struct NODE *head){  //input그대로 output이 만�
 
 void printLinkedList(struct NODE* head) {
     while (head != NULL) {
-        printf("%c", head->data);
+        if(head->data==' '){
+            printf("[]");
+        }else{
+            printf("%c", head->data);
+        }
         head = head->next;
     }
     printf("\n");
