@@ -29,8 +29,7 @@ char removeNext(struct NODE *target) {
     return data;
 }
 
-char *readFile(void);
-struct NODE *input_to_list(void);
+struct NODE *readFile(void);
 struct NODE *infix_to_postfix(struct NODE *infix);
 struct NODE *calculate_postfix(struct NODE *postfix);
 struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2);
@@ -42,7 +41,7 @@ struct NODE *copyLinkedList(struct NODE *head);
 void printLinkedList(struct NODE* head);
 
 int main(void) {
-    struct NODE *reversed_infix_head = input_to_list(); //reversed_infix_head는 식의 마지막 문자부터 가리키는 상태임.
+    struct NODE *reversed_infix_head = readFile(); //reversed_infix_head는 식의 마지막 문자부터 가리키는 상태임.
     printf("reversed_infix_head generated.\n");
     struct NODE *infix_head = reverseDataOrder(reversed_infix_head); //reversed_infix_head는 메모리 반납됨.
     printf("infix_head generated.\n");
@@ -76,7 +75,7 @@ int main(void) {
     
 }
 
-char *readFile(void) {
+struct NODE *readFile(void) {
     FILE *file = fopen("math_expression.txt","r");
     if (file == NULL) {
         printf("Error: 파일을 열 수 없습니다.\n");
@@ -84,20 +83,14 @@ char *readFile(void) {
     }
 
     char chr;
-    char *function = NULL;
-    int size = 1;
-    
-    while ((chr = fgetc(file)) != EOF) {
-        size++;
-    }
+    struct NODE *input_linkedlist1 = malloc(sizeof(struct NODE));
+    input_linkedlist1->data=' ';
+    input_linkedlist1->next=NULL;
 
-    function = malloc(size);
-
-    rewind(file); // 파일을 처음부터 다시 읽음
     
     int chr_asci;
     int isnum = 0; // 들어온 chr 값(숫자면 0, 사칙연산 1, 여는 괄호 2, 닫는 괄호 3, 소수점 4)
-    int is_open = 0, i = 0, dot = 0, isdiv = 0;
+    int is_open = 0, i=0, dot = 0, isdiv = 0;
     
     while((chr = fgetc(file)) != EOF) {
         chr_asci = chr - '0';
@@ -112,12 +105,10 @@ char *readFile(void) {
             else if (chr_asci == -7) { // 닫는 괄호일 때
                 if (is_open != 1) { // 괄호가 열리지 않았거나 괄호가 다 닫히지 않았을 때
                     printf("Error: 괄호의 개수가 올바르지 않습니다.");
-                    free(function);
                     exit(1);
                 }
                 else if (isnum == 1) { // 연산자 다음 바로 괄호가 나왔을 때
                     printf("Error: 연산자 뒤에 바로 괄호를 닫을 수 없습니다.");
-                    free(function);
                     exit(1);
                 }
                 else { // 여는 괄호 뒤에 나왔을 때
@@ -128,8 +119,7 @@ char *readFile(void) {
             }
             else if (chr_asci == -2) { // 소수점일 때
                 if (dot >= 1) {
-                    printf("Error: 소수점의 위치가 올바르지 않습니다.");
-                    free(function);
+                    printf("Error: 피연산자에 소수점이 2개 이상일 수 없습니다.");
                     exit(1);
                 }
                 else if (isnum == 0 && i > 0) {
@@ -138,7 +128,6 @@ char *readFile(void) {
                 }
                 else {
                     printf("Error: 소수점의 위치가 올바르지 않습니다.");
-                    free(function);
                     exit(1);
                 }
             }
@@ -148,19 +137,13 @@ char *readFile(void) {
                     dot--;
                 }
                 else if (isnum == 4) {
-                    printf("Error: 소수점의 위치가 올바르지 않습니다.");
-                    free(function);
+                    printf("Error: 소수점 뒤에 연산자가 올 수 없습니다.");
                     exit(1);
                 }
                 else {
                     printf("Error: 연산자가 연달아 나올 수 없습니다.");
-                    free(function);
                     exit(1);
                 }
-            }else if (chr_asci > -12) {
-                printf("Error: 알 수 없는 문자가 식에 포함되어 있습니다.");
-                free(function);
-                exit(1);
             }
             else {} // 공백 등 연산자 제외 패스
         }
@@ -168,76 +151,56 @@ char *readFile(void) {
             if (isdiv) {
                 if (chr_asci == 0) {
                     printf("Error: 0으로 나눌 수 없습니다.");
-                    free(function);
                     exit(1);
                 }
                 else {
                     printf("Error: 나눗셈이 구현되지 않았습니다.");
-                    free(function);
                     exit(1);
                 }
             }
             isnum = 0;
         }
-        *(function + i) = chr;
+        addNext(input_linkedlist1, chr);
         i++;
     }
 
     if (isnum == 1) { // 연산자로 끝나는 경우
         printf("Error: 식이 완전하지 않습니다.");
-        free(function);
         exit(1);
     }
     else if (isnum == 4) {
         printf("Error: 소수점의 위치가 올바르지 않습니다.");
-        free(function);
         exit(1);
     }
     else if (is_open != 0) { // 괄호가 닫히지 않은 채 식이 끝난 경우
         printf("Error: 괄호가 닫하지 않았습니다.");
-        free(function);
         exit(1);
     }
     fclose(file);
     printf("파일 읽기 종료");
-    *(function + i) = '\0'; // 파일 마지막에 \0 추가
+    addNext(input_linkedlist1, '\0');
 
-    char *final_func = malloc(size);
-    int n = 0, j = 0;
-    while (n < size) {
-        if (function[n] == ')' && function[n+1] == '(') {
-            final_func[n+j++] = ')';
-            final_func[n+j] = '*';
+    struct NODE *input_linkedlist2 = malloc(sizeof(struct NODE));
+    input_linkedlist2->data=' ';
+    input_linkedlist2->next=NULL;
+
+    struct NODE *reversed_linkedlist1=reverseDataOrder(input_linkedlist1);
+
+    while (true) {
+        if (reversed_linkedlist1->data==')' && (reversed_linkedlist1->next)->data=='('){
+            addNext(input_linkedlist2, removeNext(reversed_linkedlist1));
+            addNext(input_linkedlist2, '*');
+            addNext(input_linkedlist2, removeNext(reversed_linkedlist1));
         } else {
-            final_func[n+j] = *(function + n);
+            addNext(input_linkedlist2, removeNext(reversed_linkedlist1));
         }
-        n++;
+        
+        if(reversed_linkedlist1->data==' '&& reversed_linkedlist1->next==NULL){
+            break;
+        }
     }
-
-    // 정상작동 파일 작성
-    FILE *f = fopen("normalfile.txt","w");
-    fprintf(f, "%s", final_func);
-    free(function);
-    fclose(f);
-    printf("파일 작성 완료");
-    free(final_func);
-    return "normalfile.txt";
-}
-
-struct NODE *input_to_list(void) {
-    struct NODE *input_head = malloc(sizeof(struct NODE));
-    input_head->next = NULL;
-    input_head->data = ' ';
-
-    char *fp = readFile();
-    FILE *file = fopen(fp, "r");
-
-    char expression_char;
-    while ((expression_char = fgetc(file)) != EOF) {
-        addNext(input_head, expression_char);
-    }
-    fclose(file);
-    return input_head;
+    freeLinkedList(&reversed_linkedlist1);
+    return input_linkedlist2;
 }
 
 struct NODE *infix_to_postfix(struct NODE *infix) {
