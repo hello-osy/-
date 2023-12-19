@@ -146,7 +146,6 @@ struct NODE *readFile(void) {
                 }
             }else if (chr_asci > -12) {
                 printf("Error: 알 수 없는 문자가 식에 포함되어 있습니다.");
-                free(function);
                 exit(1);
             }
             else {} // 공백 등 연산자 제외 패스
