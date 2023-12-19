@@ -127,21 +127,19 @@ char *readFile(void) {
                 }
             }
             else if (chr_asci == -2) { // 소수점일 때
-                if (isnum != 0) {
-                    printf("Error: 소수점의 위치가 올바르지 않습니다.");
+                if (dot >= 1) {
+                    printf("Error: 피연산자에 소수점이 2개 이상일 수 없습니다.");
                     free(function);
                     exit(1);
                 }
-                else { 
-                    if (dot >1) { // 숫자 하나에 소수점이 두 개 이상일 때
-                        printf("Error: 피연산자에 소수점이 2개 이상일 수 없습니다.");
-                        free(function);
-                        exit(1);
-                    }
-                    else {
-                        isnum = 4;
-                        dot++;
-                    }
+                else if (isnum == 0) {
+                    isnum = 4;
+                    dot++;
+                }
+                else {
+                    printf("Error: 소수점의 위치가 올바르지 않습니다.");
+                    free(function);
+                    exit(1);
                 }
             }
             else if (chr_asci > -9) { // 사칙연산일 때
@@ -158,9 +156,9 @@ char *readFile(void) {
             }
             else {} // 공백 등 연산자 제외 패스
         }
-        else { // 숫자가 나온 경우
-            if (isdiv) { // 나눗셈인 경우
-                if (chr_asci == 0) { // 0으로 나누려 하는 경우
+        else {
+            if (isdiv) {
+                if (chr_asci == 0) {
                     printf("Error: 0으로 나눌 수 없습니다.");
                     free(function);
                     exit(1);
@@ -207,9 +205,10 @@ char *readFile(void) {
     FILE *f = fopen("normalfile.txt","w");
     fprintf(f, "%s", final_func);
     free(function);
-    free(final_func);
+
     fclose(f);
     printf("파일 작성 완료");
+    free(final_func);
     return "normalfile.txt";
 }
 
