@@ -103,7 +103,7 @@ struct NODE *readFile(void) {
                 isnum = 2;
             }
             else if (chr_asci == -7) { // 닫는 괄호일 때
-                if (is_open != 1) { // 괄호가 열리지 않았거나 괄호가 다 닫히지 않았을 때
+                if (is_open < 1) { // 괄호가 열리지 않았거나 괄호가 다 닫히지 않았을 때
                     printf("Error: 괄호의 개수가 올바르지 않습니다.");
                     exit(1);
                 }
