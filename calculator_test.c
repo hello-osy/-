@@ -287,190 +287,163 @@ struct NODE *calculate_postfix(struct NODE *postfix) {
     struct NODE *temp2_head = malloc(sizeof(struct NODE));
     temp2_head->next = NULL;
     temp2_head->data = ' ';
-    
-    struct NODE *temp3_head = malloc(sizeof(struct NODE));
-    temp3_head->next = NULL;
-    temp3_head->data = ' ';
-    
+
+    struct NODE *num_head = malloc(sizeof(struct NODE));
+    num_head->next = NULL;
+    num_head->data = ' ';
     printf("calculate_postfix entered.\n");
 
-    struct NODE *result = malloc(sizeof(struct NODE));
-    result->next = NULL;
-    result->data = ' ';
-
-    int signal=0;
     while (true) {
         if ((postfix->data == '.') || (postfix->data == '0') || (postfix->data == '1') || (postfix->data == '2') || (postfix->data == '3') || (postfix->data == '4') || (postfix->data == '5') || (postfix->data == '6') || (postfix->data == '7') || (postfix->data == '8') || (postfix->data == '9')) {
-            if (temp1_head->next==NULL) { //최초 1회만 실행됨.
-                printf("temp1_head entered.\n");
-                while (true) {
-                    addNext(temp1_head, removeNext(postfix));
-                    if ((postfix->data == ' ')){
-                        break;
-                    }
-                }
-            } else if (temp2_head->next==NULL) { //숫자 다음에 연산자 다음에 숫자 ... 이런 패턴이 반복될 때는 여기까지만
-                printf("temp2_head entered.\n");
-                while (true) {
-                    addNext(temp2_head, removeNext(postfix));
-                    if ((postfix->data == ' ')){
-                        break;
-                    }
-                }
-            } else if(temp1_head->next!=NULL && temp2_head!=NULL){ //갑자기 연산자가 안 나오고 숫자 2개가 나오는 경우.
-                printf("temp3_head entered.\n");
-                while (true) {
-                    addNext(temp3_head, removeNext(postfix));
-                    if ((postfix->data == ' ')){
-                        break;
-                    }
-                }
-                signal=1;
+            while(postfix->data!=' '){
+                addNext(num_head, removeNext(postfix));
             }
         } else if (postfix->data == '+') {
-            if(signal==0){
-                removeNext(postfix);
-                printf("addition ready.\n");
-                struct NODE *addition_result = Addition(temp1_head, temp2_head);
-                
-                freeLinkedList(&temp1_head);
-                freeLinkedList(&temp2_head);
-
-                temp1_head = reverseDataOrder(addition_result);
-                temp2_head = malloc(sizeof(struct NODE));
-                temp2_head->next = NULL;
-                temp2_head->data = ' ';
-                printf("addition completed.\n");
-            }else if(signal==1){
-                removeNext(postfix);
-                printf("addition ready.\n");
-                struct NODE *addition_result = Addition(temp2_head, temp3_head);
-                
-                freeLinkedList(&temp2_head);
-                freeLinkedList(&temp3_head);
-
-                temp2_head = reverseDataOrder(addition_result);
-                temp3_head = malloc(sizeof(struct NODE));
-                temp3_head->next = NULL;
-                temp3_head->data = ' ';
-                printf("addition completed.\n");
-                signal=2;
-            }else if(signal==2){
-                removeNext(postfix);
-                printf("addition ready.\n");
-                struct NODE *addition_result = Addition(temp1_head, temp2_head);
-                
-                freeLinkedList(&temp1_head);
-                freeLinkedList(&temp2_head);
-
-                temp1_head = reverseDataOrder(addition_result);
-                temp2_head = malloc(sizeof(struct NODE));
-                temp2_head->next = NULL;
-                temp2_head->data = ' ';
-                printf("addition completed.\n");
-                signal=0;
+            printf("before num_head : ");
+            printLinkedList(num_head);
+            while((num_head->next)->data==' '){
+                removeNext(num_head);
             }
-        } else if (postfix->data == '-') {
-            if(signal==0){
-                removeNext(postfix);
-                printf("subtraction ready.\n");
-                struct NODE *subtraction_result = Subtraction(temp1_head, temp2_head);
-                
-                freeLinkedList(&temp1_head);
-                freeLinkedList(&temp2_head);
 
-                temp1_head = reverseDataOrder(subtraction_result);
-                temp2_head = malloc(sizeof(struct NODE));
-                temp2_head->next = NULL;
-                temp2_head->data = ' ';
-                printf("subtraction completed.\n");
-            }else if(signal==1){
-                removeNext(postfix);
-                printf("subtraction ready.\n");
-                struct NODE *subtraction_result = Subtraction(temp2_head, temp3_head);
-                
-                freeLinkedList(&temp2_head);
-                freeLinkedList(&temp3_head);
-
-                temp2_head = reverseDataOrder(subtraction_result);
-                temp3_head = malloc(sizeof(struct NODE));
-                temp3_head->next = NULL;
-                temp3_head->data = ' ';
-                printf("subtraction completed.\n");
-                signal=2;
-            }else if(signal==2){
-                removeNext(postfix);
-                printf("subtraction ready.\n");
-                struct NODE *subtraction_result = Subtraction(temp1_head, temp2_head);
-                
-                freeLinkedList(&temp1_head);
-                freeLinkedList(&temp2_head);
-
-                temp1_head = reverseDataOrder(subtraction_result);
-                temp2_head = malloc(sizeof(struct NODE));
-                temp2_head->next = NULL;
-                temp2_head->data = ' ';
-                printf("subtraction completed.\n");
-                signal=0;
+            while((num_head->next)->data!=' '){
+                addNext(temp2_head, removeNext(num_head->next));
             }
-        } else if (postfix->data == '*') {
-            if(signal==0){
-                removeNext(postfix);
-                printf("multiplication ready.\n");
-                struct NODE *multiplication_result = Multiplication(temp1_head, temp2_head);
-                
-                freeLinkedList(&temp1_head);
-                freeLinkedList(&temp2_head);
+            temp2_head=reverseDataOrder(temp2_head);
+            printf("temp2_head : ");
+            printLinkedList(temp2_head);
 
-                temp1_head = reverseDataOrder(multiplication_result);
-                temp2_head = malloc(sizeof(struct NODE));
-                temp2_head->next = NULL;
-                temp2_head->data = ' ';
-                printf("multiplication completed.\n");
-            }else if(signal==1){
-                removeNext(postfix);
-                printf("multiplication ready.\n");
-                struct NODE *multiplication_result = Multiplication(temp2_head, temp3_head);
-                
-                freeLinkedList(&temp2_head);
-                freeLinkedList(&temp3_head);
-
-                temp2_head = reverseDataOrder(multiplication_result);
-                temp3_head = malloc(sizeof(struct NODE));
-                temp3_head->next = NULL;
-                temp3_head->data = ' ';
-                printf("multiplication completed.\n");
-                signal=2;
-            }else if(signal==2){
-                removeNext(postfix);
-                printf("multiplication ready.\n");
-                struct NODE *multiplication_result = Multiplication(temp1_head, temp2_head);
-                
-                freeLinkedList(&temp1_head);
-                freeLinkedList(&temp2_head);
-
-                temp1_head = reverseDataOrder(multiplication_result);
-                temp2_head = malloc(sizeof(struct NODE));
-                temp2_head->next = NULL;
-                temp2_head->data = ' ';
-                printf("multiplication completed.\n");
-                signal=0;
+            removeNext(num_head->next); //숫자 사이를 구분하는 공백 건너뜀.
+            while((num_head->next)->data!=' '){
+                addNext(temp1_head, removeNext(num_head->next));
             }
-        } else {
+            temp1_head=reverseDataOrder(temp1_head);
+            printf("temp1_head : ");
+            printLinkedList(temp1_head);
+
+            printf("after num_head : ");
+            printLinkedList(num_head);
+
             removeNext(postfix);
+            printf("addition ready.\n");
+            struct NODE *addition_result = Addition(temp1_head, temp2_head);
+            
+            freeLinkedList(&temp1_head);
+            freeLinkedList(&temp2_head);
+
+            removeNext(addition_result); //맨 앞에 붙은 공백 제거.
+            while(addition_result->data!=' '){
+                addNext(num_head, removeNext(addition_result));
+            }
+            freeLinkedList(&addition_result);
+            temp1_head = malloc(sizeof(struct NODE));
+            temp1_head->next = NULL;
+            temp1_head->data = ' ';
+            temp2_head = malloc(sizeof(struct NODE));
+            temp2_head->next = NULL;
+            temp2_head->data = ' ';
+            printf("addition completed.\n");
+        } else if (postfix->data == '-') {
+            printf("before num_head : ");
+            printLinkedList(num_head);
+            while((num_head->next)->data==' '){
+                removeNext(num_head);
+            }
+
+            while((num_head->next)->data!=' '){
+                addNext(temp2_head, removeNext(num_head->next));
+            }
+            temp2_head=reverseDataOrder(temp2_head);
+            printf("temp2_head : ");
+            printLinkedList(temp2_head);
+
+            removeNext(num_head->next); //숫자 사이를 구분하는 공백 건너뜀.
+            while((num_head->next)->data!=' '){
+                addNext(temp1_head, removeNext(num_head->next));
+            }
+            temp1_head=reverseDataOrder(temp1_head);
+            printf("temp1_head : ");
+            printLinkedList(temp1_head);
+
+            printf("after num_head : ");
+            printLinkedList(num_head);
+
+            removeNext(postfix);
+            printf("subtraction ready.\n");
+            struct NODE *subtraction_result = Subtraction(temp1_head, temp2_head);
+
+            freeLinkedList(&temp1_head);
+            freeLinkedList(&temp2_head);
+
+            removeNext(subtraction_result); //맨 앞에 붙은 공백 제거.
+            while(subtraction_result->data!=' '){
+                addNext(num_head, removeNext(subtraction_result));
+            }
+            freeLinkedList(&subtraction_result);
+            temp1_head = malloc(sizeof(struct NODE));
+            temp1_head->next = NULL;
+            temp1_head->data = ' ';
+            temp2_head = malloc(sizeof(struct NODE));
+            temp2_head->next = NULL;
+            temp2_head->data = ' ';
+            printf("subtraction completed.\n");
+        } else if (postfix->data == '*') {
+            printf("before num_head : ");
+            printLinkedList(num_head);
+            while((num_head->next)->data==' '){
+                removeNext(num_head);
+            }
+
+            while((num_head->next)->data!=' '){
+                addNext(temp2_head, removeNext(num_head->next));
+            }
+            temp2_head=reverseDataOrder(temp2_head);
+            printf("temp2_head : ");
+            printLinkedList(temp2_head);
+
+            removeNext(num_head->next); //숫자 사이를 구분하는 공백 건너뜀.
+            while((num_head->next)->data!=' '){
+                addNext(temp1_head, removeNext(num_head->next));
+            }
+            temp1_head=reverseDataOrder(temp1_head);
+            printf("temp1_head : ");
+            printLinkedList(temp1_head);
+
+            printf("after num_head : ");
+            printLinkedList(num_head);
+            
+            removeNext(postfix);
+            printf("multiplication ready.\n");
+            struct NODE *multiplication_result = Multiplication(temp1_head, temp2_head);
+
+            freeLinkedList(&temp1_head);
+            freeLinkedList(&temp2_head);
+
+            removeNext(multiplication_result); //맨 앞에 붙은 공백 제거.
+            while(multiplication_result->data!=' '){
+                addNext(num_head, removeNext(multiplication_result));
+            }
+            freeLinkedList(&multiplication_result);
+            temp1_head = malloc(sizeof(struct NODE));
+            temp1_head->next = NULL;
+            temp1_head->data = ' ';
+            temp2_head = malloc(sizeof(struct NODE));
+            temp2_head->next = NULL;
+            temp2_head->data = ' ';
+            printf("multiplication completed.\n");
+        } else {
+            addNext(num_head, removeNext(postfix)); //postfix공백일 때는 num_head에 공백추가
         }
 
         if(postfix->next==NULL && postfix->data==' '){
-            result = temp1_head; //이게 문제일 수도?
             break;
         }
     }
     freeLinkedList(&postfix);
-    result=reverseDataOrder(result); //result는 마지막 temp1_head인데, temp_head는 뒤집힌 상태임. 원래 상태로 만들어준 것임.
-    while((result->data==' ') || (result->data=='0')){
-        removeNext(result);
+    num_head=reverseDataOrder(num_head);
+    while((num_head->data==' ') || (num_head->data=='0')){
+        removeNext(num_head);
     }
-    return result;
+    return num_head;
 }
 
 struct NODE *Addition(struct NODE *NUM1, struct NODE *NUM2) {
