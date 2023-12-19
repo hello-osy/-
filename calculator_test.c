@@ -219,7 +219,6 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
         ++count;
         if (infix->data == '('){//char을 비교하므로 '으로 감싸야 함.
             addNext(temp_head, removeNext(infix));
-            signal=0;
         }
         else if (infix->data == ')'){
             while(temp_head->data != '('){
@@ -237,7 +236,6 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
                 removeNext(temp_head); // '('를 지움
             }
             removeNext(infix);
-            signal=0;
         }
         else if((infix->data == '*') || (infix->data == '/')){
             addNext(postfix_head, ' ');
