@@ -132,7 +132,7 @@ char *readFile(void) {
                     free(function);
                     exit(1);
                 }
-                else if (isnum == 0) {
+                else if (isnum == 0 && i > 0) {
                     isnum = 4;
                     dot++;
                 }
@@ -147,7 +147,11 @@ char *readFile(void) {
                     isnum = 1;
                     dot--;
                 }
-                
+                else if (isnum == 4) {
+                    printf("Error: 소수점 뒤에 연산자가 올 수 없습니다.");
+                    free(function);
+                    exit(1);
+                }
                 else {
                     printf("Error: 연산자가 연달아 나올 수 없습니다.");
                     free(function);
@@ -177,6 +181,11 @@ char *readFile(void) {
 
     if (isnum == 1) { // 연산자로 끝나는 경우
         printf("Error: 식이 완전하지 않습니다.");
+        free(function);
+        exit(1);
+    }
+    else if (isnum == 4) {
+        printf("Error: 소수점의 위치가 올바르지 않습니다.");
         free(function);
         exit(1);
     }
