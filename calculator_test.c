@@ -205,7 +205,6 @@ char *readFile(void) {
     FILE *f = fopen("normalfile.txt","w");
     fprintf(f, "%s", final_func);
     free(function);
-
     fclose(f);
     printf("파일 작성 완료");
     free(final_func);
