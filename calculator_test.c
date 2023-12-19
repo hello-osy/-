@@ -244,7 +244,6 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
     while (true) {
         ++count;
         if (infix->data == '('){//char을 비교하므로 '으로 감싸야 함.
-            addNext(postfix_head, ' '); //숫자가 아닌 애들은 띄어쓰기로 구분하기 위해서 넣은 코드임.
             addNext(temp_head, removeNext(infix));
             signal=0;
         }
@@ -310,18 +309,16 @@ struct NODE *infix_to_postfix(struct NODE *infix) {
             //printf("\n trash was found.");
             
             if((infix->data==' ') && (infix->next == NULL)){//infix 마지막 까지 간 경우임.
-                if (temp_head->next !=NULL){ //temp_head에 데이터가 들어있는 경우 데이터를 postfix_head로 넘겨준다.
-                    while (true){
-                        if(temp_head->data!=' '){
-                            addNext(postfix_head, ' ');
-                            addNext(postfix_head, removeNext(temp_head));
-                        }else{
-                            removeNext(temp_head);
-                        }
+                while (true){
+                    if(temp_head->data!=' '){
+                        addNext(postfix_head, ' ');
+                        addNext(postfix_head, removeNext(temp_head));
+                    }else{
+                        removeNext(temp_head);
+                    }
 
-                        if(temp_head->data==' ' && temp_head->next==NULL){
-                            break;
-                        }
+                    if(temp_head->data==' ' && temp_head->next==NULL){
+                        break;
                     }
                 }
                 break;
