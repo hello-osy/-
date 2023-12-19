@@ -128,7 +128,7 @@ char *readFile(void) {
             }
             else if (chr_asci == -2) { // 소수점일 때
                 if (dot >= 1) {
-                    printf("Error: 피연산자에 소수점이 2개 이상일 수 없습니다.");
+                    printf("Error: 소수점의 위치가 올바르지 않습니다.");
                     free(function);
                     exit(1);
                 }
@@ -148,7 +148,7 @@ char *readFile(void) {
                     dot--;
                 }
                 else if (isnum == 4) {
-                    printf("Error: 소수점 뒤에 연산자가 올 수 없습니다.");
+                    printf("Error: 소수점의 위치가 올바르지 않습니다.");
                     free(function);
                     exit(1);
                 }
@@ -157,6 +157,10 @@ char *readFile(void) {
                     free(function);
                     exit(1);
                 }
+            }else if (chr_asci > -12) {
+                printf("Error: 알 수 없는 문자가 식에 포함되어 있습니다.");
+                free(function);
+                exit(1);
             }
             else {} // 공백 등 연산자 제외 패스
         }
